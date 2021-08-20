@@ -1,0 +1,20 @@
+# Cache objects
+packer_cache/
+.tools/
+
+# Crash log
+crash.log
+
+# For built boxes
+*.box
+
+# Packer build output
+*.vhdx
+output-hyperv-iso/
+*.iso
+packer.log.txt
+*.zip
+build/
+SampleData/
+downloads/
+dist/

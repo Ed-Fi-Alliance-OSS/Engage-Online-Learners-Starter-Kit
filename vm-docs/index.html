@@ -111,6 +111,21 @@
         .centered {
             text-align: center;
         }
+
+        @media only screen and (min-width: 1080px) {
+            .main-content {
+                width: 80vw;
+                margin-left: 10vw;
+            }
+        }
+
+        @media only screen and (max-width: 1079px) {
+            .main-content {
+                width: 90vw;
+                margin-left: 5vw;
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs2015.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
@@ -123,7 +138,7 @@
     <header>
         <img src="https://edfidata.s3-us-west-2.amazonaws.com/Starter+Kits/images/EdFiQuickStartBackground.png">
     </header>
-    <div class="p-l-20">
+    <div class="main-content">
         <h1>This Virtual Machine Contains the Ed-Fi ODS / API & the Student Engagement Starter Kit</h1>
         <p>The purpose of this virtual machine is to showcase the <a href="https://techdocs.ed-fi.org/x/1wjgBQ">Student
                 Engagement in the LMS Starter Kit</a>. The COVID-19 global pandemic has created an unprecedented

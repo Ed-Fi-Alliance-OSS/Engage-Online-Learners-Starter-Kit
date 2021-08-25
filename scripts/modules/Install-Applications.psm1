@@ -120,16 +120,9 @@ function Install-PowerBI {
     Start-Transcript -Path $LogFile -Append
 
     $url = "https://download.microsoft.com/download/8/8/0/880BCA75-79DD-466A-927D-1ABF1F5454B0/PBIDesktopSetup_x64.exe"
-    $expected_hash = "A9B9B3C8EB2ACF659D2C16DF93A4CBC012AD80BF4632E8D09AD0FE9598206C48"
 
     $installer = "$DownloadPath/PBIDesktopSetup_x64.exe"
     Invoke-RestMethod -Uri $url -OutFile $installer
-
-    $actual_hash = (Get-FileHash $installer).Hash
-
-    if ($actual_hash -ne $expected_hash) {
-        throw "PowerBI download failed: hashes do not match"
-    }
 
     &$installer -quiet -norestart ACCEPT_EULA=1
     Stop-Transcript

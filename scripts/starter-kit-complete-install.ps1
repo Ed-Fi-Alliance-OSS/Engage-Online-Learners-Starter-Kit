@@ -52,6 +52,7 @@ $ProgressPreference = "SilentlyContinue"
 $EdFiDir = "C:/Ed-Fi"
 $WebRoot = "$EdFiDir/Web"
 $skDir = "$EdFiDir/Starter-Kit-main"
+$skDataDir = "$skDir/data"
 
 Function Get-StarterKitFiles {
     $file = "$skDir.zip"
@@ -69,9 +70,6 @@ Function Install-LandingPage {
 
     Copy-Item -Path "$skDir/vm-docs" -Destination $WebRoot -Recurse
 
-    $indexContent = Get-Content -Path "$WebRoot/index.html" -Raw
-    $indexContent -replace '@@DOMAINNAME@@', $(hostname) | Out-File -FilePath "$WebRoot/index.html"
-
     $new_object = New-Object -ComObject WScript.Shell
     $destination = $new_object.SpecialFolders.Item("AllUsersDesktop")
     $source_path = Join-Path -Path $destination -ChildPath "Start Here.url"
@@ -81,10 +79,86 @@ Function Install-LandingPage {
     $Shortcut.Save()
 }
 
-Function Move-DashboardToDesktop {
-    $pbix = "$skDir/StudentEngagementDashboard.pbix"
-    Move-Item -Path $pbix -Destination "$env:USERPROFILE/Desktop"
+Function Invoke-BulkLoadInternetAccessData {
+    $bulkTemp = "./bulk-temp"
+    New-Item -Path $bulkTemp -ItemType Directory -Force | Out-Null
+
+    $bulkLoader = "C:/Ed-Fi/Bulk-Load-Client/EdFi.BulkLoadClient.Console.exe"
+
+    # Download the XSD
+    $xsdUrl = "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/v5.2/Application/EdFi.Ods.Standard/Artifacts/Schemas"
+    $schemas = "./schemas"
+    New-Item -Path $schemas -ItemType Directory -Force | Out-Null
+
+    @(
+        "Ed-Fi-Core.xsd",
+        "Interchange-AssessmentMetadata.xsd",
+        "Interchange-Descriptors.xsd",
+        "Interchange-EducationOrgCalendar.xsd",
+        "Interchange-EducationOrganization.xsd",
+        "Interchange-Finance.xsd",
+        "Interchange-MasterSchedule.xsd",
+        "Interchange-Parent.xsd",
+        "Interchange-PostSecondaryEvent.xsd",
+        "Interchange-StaffAssociation.xsd",
+        "Interchange-Standards.xsd",
+        "Interchange-Student.xsd",
+        "Interchange-StudentAssessment.xsd",
+        "Interchange-StudentAttendance.xsd",
+        "Interchange-StudentCohort.xsd",
+        "Interchange-StudentEnrollment.xsd",
+        "Interchange-StudentGrade.xsd",
+        "Interchange-StudentGradebook.xsd",
+        "Interchange-StudentIntervention.xsd",
+        "Interchange-StudentProgram.xsd",
+        "Interchange-StudentTranscript.xsd",
+        "Interchange-Survey.xsd",
+        "SchemaAnnotation.xsd"
+    ) | ForEach-Object {
+        $xsdOut = "./$schemas/$_"
+        Invoke-RestMethod -Uri "$xsdUrl/$_" -OutFile $xsdOut
+    }
+
+    # Need to automate the process of getting a key and secret for the bulk
+    # loader to upload the XML file.
+    $params = @{
+        Database = "EdFi_Admin"
+        HostName = "localhost"
+        InputFile = Resolve-Path -Path "./bulk-api-client.sql"
+        OutputSqlErrors = $True
+    }
+    Invoke-SqlCmd @params
+
+    $key = "consoleBulkLoader"
+    $secret = "consoleBulkLoaderSecret"
+    $year = "2022"
+    $url = "https://$(hostname)/WebApi"
+
+    $params = @(
+        "-b", $url,
+        "-d", (Resolve-Path -Path $skDataDir),
+        "-k", $key,
+        "-s", $secret,
+        "-w", (Resolve-Path -Path $bulkTemp),
+        "-x", (Resolve-Path -Path $schemas),
+        "-y", $year
+    )
+
+    Write-Host -ForegroundColor Magenta "Executing: $bulkLoader " @params
+    &$bulkLoader @params
 }
+
+function Set-WallPaper {
+    Write-Output "Installing Ed-Fi wallpaper image"
+
+    $url = "https://edfidata.s3-us-west-2.amazonaws.com/Starter+Kits/images/EdFiQuickStartBackground.png"
+    Invoke-WebRequest -Uri $url -OutFile "c:/EdFiQuickStartBackground.png"
+
+    Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -name WallPaper -value "c:/EdFiQuickStartBackground.png"
+    Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -name WallpaperStyle -value "0" -Force
+    rundll32.exe user32.dll, UpdatePerUserSystemParameters
+}
+
 
 # Create a few directories
 New-Item -Path $EdFiDir -ItemType "directory" -Force | Out-Null
@@ -100,13 +174,15 @@ Import-Module -Name "$PSScriptRoot/modules/Install-LMSToolkit.psm1" -Force
 
 Install-LMSSampleData -InstallDir $EdFiDir
 
-Get-StarterKitFiles
-Install-LandingPage
-Move-DashboardToDesktop
+Set-WallPaper
 
-# TODO: in a future ticket, we'll need to download additional sample data for
-# student internet access and bulk upload it. Look to Roadrunner work to
-# determine how to create an appropriate key and secret.
+Get-StarterKitFiles
+Invoke-BulkLoadInternetAccessData
+Install-LandingPage
+
+# Move the Power BI file to the desktop
+$pbix = "$env:UserProfile/Desktop/StudentEngagementDashboard.pbix"
+Move-Item -Path $pbix -Destination "$env:USERPROFILE/Desktop"
 
 # Restore the progress reporting
 $ProgressPreference = "Continue"

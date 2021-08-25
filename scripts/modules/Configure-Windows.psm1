@@ -5,17 +5,6 @@
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-function Set-WallPaper {
-    Write-Output "Installing Ed-Fi wallpaper image"
-
-    $url = "https://edfidata.s3-us-west-2.amazonaws.com/Starter+Kits/images/EdFiQuickStartBackground.png"
-    Invoke-WebRequest -Uri $url -OutFile "c:/EdFiQuickStartBackground.png"
-
-    Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -name WallPaper -value "c:/EdFiQuickStartBackground.png"
-    Set-ItemProperty -path "HKCU:\Control Panel\Desktop" -name WallpaperStyle -value "0" -Force
-    rundll32.exe user32.dll, UpdatePerUserSystemParameters
-}
-
 function Set-TLS12Support {
     Write-Host "Enabling TLS 1.2"
 

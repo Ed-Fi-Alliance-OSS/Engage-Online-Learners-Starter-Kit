@@ -127,6 +127,7 @@ $params = @{
     EdFiFeed = $EdFiFeed
     PackageVersion = $PlatformVersion
     InstallDir = "$EdFiDir/Bulk-Load-Client"
+    NuGetExe = $NuGetExe
 }
 Install-ClientBulkLoader @params
 

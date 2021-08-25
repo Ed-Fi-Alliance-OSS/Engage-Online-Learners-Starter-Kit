@@ -295,10 +295,16 @@ function Install-AnalyticsMiddleTier {
     &dotnet restore $sln
     &dotnet build $sln
 
+    # AMT does not like the way that the options come through when you just
+    # run something like
+    #     dotnet run --connectionString $connString --options $AmtOptions
+    # The argument parser can't handle something about the way the options come
+    # through. A work around is to create the entire command as a string and
+    # then invoke it as an expression.
     $connString = "server=localhost;database=EdFi_ODS_2022;integrated security=SSPI"
-    &dotnet run -p $proj `
-        --connectionString $connstring `
-        --options $AmtOptions
+    $command = "&dotnet run -p $proj --connectionString '$connstring' --options $AmtOptions"
+    Write-Host -ForegroundColor Magenta -Object $command
+    Invoke-Expression $command
 }
 
 Export-ModuleMember *

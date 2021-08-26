@@ -50,11 +50,13 @@ $ProgressPreference = "SilentlyContinue"
 
 # Constants
 $EdFiDir = "C:/Ed-Fi"
-$WebRoot = "$EdFiDir/Web"
-$skDir = "$EdFiDir/Starter-Kit-main"
+$WebRoot = "C:/inetpub/Ed-Fi"
+$skDir = "$EdFiDir/Engage-Online-Learners-Starter-Kit-main"
 $skDataDir = "$skDir/data"
 
 Function Get-StarterKitFiles {
+    Write-Host "Downloading additional starter kit files"
+
     $file = "$skDir.zip"
 
     if (-not (Test-Path $file) -or $Force) {
@@ -68,7 +70,7 @@ Function Get-StarterKitFiles {
 Function Install-LandingPage {
     Write-Host "Installing the landing page"
 
-    Copy-Item -Path "$skDir/vm-docs" -Destination $WebRoot -Recurse
+    Copy-Item -Path "$skDir/vm-docs/*" -Destination $WebRoot
 
     $new_object = New-Object -ComObject WScript.Shell
     $destination = $new_object.SpecialFolders.Item("AllUsersDesktop")
@@ -80,6 +82,8 @@ Function Install-LandingPage {
 }
 
 Function Invoke-BulkLoadInternetAccessData {
+    Write-Host "Uploading additional sample data"
+
     $bulkTemp = "./bulk-temp"
     New-Item -Path $bulkTemp -ItemType Directory -Force | Out-Null
 
@@ -181,7 +185,7 @@ Invoke-BulkLoadInternetAccessData
 Install-LandingPage
 
 # Move the Power BI file to the desktop
-$pbix = "$env:UserProfile/Desktop/StudentEngagementDashboard.pbix"
+$pbix = "$skDir/StudentEngagementDashboard.pbix"
 Move-Item -Path $pbix -Destination "$env:USERPROFILE/Desktop"
 
 # Restore the progress reporting

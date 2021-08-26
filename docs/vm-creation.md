@@ -29,6 +29,8 @@ describes the processes for creating and maintaining such images.
    automatically, as required to run the script. Navigate to the directory with
    the scripts and run `starter-kit-complete-install.ps1`. If everything has
    been done right, it will run for a while and install everything needed.
+9. Fix any errors. Getting these scripts "just right" is very tedious and
+   difficult to achieve.
 
 :exclamation: This will load the landing page and Power BI file from the `main`
 branch in the repository. If you want something that is a work in progress that
@@ -36,10 +38,13 @@ hasn't been merged yet, then you'll need to copy those over manually.
 
 ## Creating an Amazon Machine Image (AMI)
 
-1. Navigate to the Instances list and select the instance that you want to
+1. When everything looks good on the VM, [run
+    sysprep](https://aws.amazon.com/premiumsupport/knowledge-center/sysprep-create-install-ec2-windows-amis/)
+    to anonymize the image.
+2. Navigate to the Instances list and select the instance that you want to
    capture as an image.
-2. In the Actions menu, select Images and templates > Create Image.
-3. The web site will walk you through the process. Some input parameters:
+3. In the Actions menu, select Images and templates > Create Image.
+4. The web site will walk you through the process. Some input parameters:
    * AMI Name: `Ed-Fi Engage Online Learners Starter Kit`
    * Description: `Contains all tools required to run the Ed-Fi "Engage Online
      Learners" Starter Kit. https://techdocs.ed-fi.org/display/SK`
@@ -48,6 +53,6 @@ hasn't been merged yet, then you'll need to copy those over manually.
      * Starter-Kit: `Engage Online Learners`
      * Version: bump from the previous pre-release or Semantic version number as
        appropriate.
-4. Image creation takes a few minutes. When the AMI is ready in the AMIs list,
+5. Image creation takes a few minutes. When the AMI is ready in the AMIs list,
    select the new AMI and look at the Permissions panel below the list. Change
    the permission from Private to Public.

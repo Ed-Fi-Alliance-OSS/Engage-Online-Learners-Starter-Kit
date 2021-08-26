@@ -55,7 +55,7 @@ function Install-LMSSampleData {
 
         # Upload sample LMS data into the `lms` schema
         &poetry run python ./edfi_lms_ds_loader/ `
-            --csvpath ../../../docs/starter-kit-sample
+            --csvpath (Resolve-Path -Path "../../docs/starter-kit-sample")
     }
     catch {throw}
     finally {
@@ -98,8 +98,8 @@ CANVAS_BASE_URL=[base URL of your canvas install]
 CANVAS_ACCESS_TOKEN=[access token from an administrative account]
 START_DATE=[extract courses that start from this date]
 END_DATE=[extract courses that end by this date]
-OUTPUT_DIRECTORY=$EdFiDir/lms-data/csv
-SYNC_DATABASE_DIRECTORY=$EdFiDir/lms-data/canvas
+OUTPUT_DIRECTORY=$InstallDir/lms-data/csv
+SYNC_DATABASE_DIRECTORY=$InstallDir/lms-data/canvas
 FEATURE=activities, attendance, assignments, grades
 "@ | New-EnvFile -Directory "$lmsDirectory/src/canvas-extractor"
 
@@ -107,23 +107,23 @@ FEATURE=activities, attendance, assignments, grades
 CLASSROOM_ACCOUNT=[email address of the Google Classroom admin account, required]
 START_DATE=[start date for usage data pull in yyyy-mm-dd format, optional]
 END_DATE=[end date for usage data pull in yyyy-mm-dd format, optional]
-OUTPUT_DIRECTORY=$EdFiDir/lms-data/csv
-SYNC_DATABASE_DIRECTORY=$EdFiDir/lms-data/google
+OUTPUT_DIRECTORY=$InstallDir/lms-data/csv
+SYNC_DATABASE_DIRECTORY=$InstallDir/lms-data/google
 FEATURE=activities, attendance, assignments, grades
 "@ | New-EnvFile -Directory "$lmsDirectory/src/google-classroom-extractor"
 
     @"
 SCHOOLOGY_KEY=[Schoology API key]
 SCHOOLOGY_SECRET=[Schoology API secret]
-SCHOOLOGY_INPUT_DIRECTORY=$EdFiDir/lms-data/schoology-activities
+SCHOOLOGY_INPUT_DIRECTORY=$InstallDir/lms-data/schoology-activities
 PAGE_SIZE=200
-OUTPUT_DIRECTORY=$EdFiDir/lms-data/csv
-SYNC_DATABASE_DIRECTORY=$EdFiDir/lms-data/schoology
+OUTPUT_DIRECTORY=$InstallDir/lms-data/csv
+SYNC_DATABASE_DIRECTORY=$InstallDir/lms-data/schoology
 FEATURE=activities, attendance, assignments, grades
 "@ | New-EnvFile -Directory  "$lmsDirectory/src/schoology-extractor"
 
     @"
-CSV_PATH=$EdFiDir/lms-data/csv
+CSV_PATH=$InstallDir/lms-data/csv
 DB_SERVER=localhost
 DB_NAME=EdFi_ODS_2022
 USE_INTEGRATED_SECURITY=True
@@ -133,11 +133,10 @@ USE_INTEGRATED_SECURITY=True
 DB_SERVER=localhost
 DB_NAME=EdFi_ODS_2022
 USE_INTEGRATED_SECURITY=True
-EXCEPTIONS_REPORT_DIRECTORY=$EdFiDir/lms-data/harmonizer-exceptions
+EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
 "@ | New-EnvFile -Directory "$lmsDirectory/src/lms-harmonizer"
 
     # Run the LMS DS Loader to create the `lms` schema tables
-    # and upload the sample starter kit data
     try {
         Push-Location -Path "$lmsDirectory/src/lms-ds-loader"
         &poetry install

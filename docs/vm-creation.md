@@ -49,7 +49,6 @@ hasn't been merged yet, then you'll need to copy those over manually.
    * Description: `Contains all tools required to run the Ed-Fi "Engage Online
      Learners" Starter Kit. https://techdocs.ed-fi.org/display/SK`
    * Tags:
-     * Maintained-By: `Stephen Fuqua`
      * Starter-Kit: `Engage Online Learners`
      * Version: bump from the previous pre-release or Semantic version number as
        appropriate.

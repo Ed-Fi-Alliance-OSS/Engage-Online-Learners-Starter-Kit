@@ -18,18 +18,6 @@
             font-family: 'Montserrat', sans-serif;
         }
 
-        .p-l-10 {
-            padding-left: 10px;
-        }
-
-        .p-l-20 {
-            padding-left: 20px;
-        }
-
-        .inline {
-            display: inline;
-        }
-
         strong {
             font-weight: bold;
         }
@@ -125,13 +113,7 @@
                 margin-left: 5vw;
             }
         }
-
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs2015.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/powershell.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/sql.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
 </head>
 
 <body>
@@ -140,354 +122,53 @@
     </header>
     <div class="main-content">
         <h1>This Virtual Machine Contains the Ed-Fi ODS / API & the Student Engagement Starter Kit</h1>
-        <p>The purpose of this virtual machine is to showcase the <a href="https://techdocs.ed-fi.org/x/1wjgBQ">Student
-                Engagement in the LMS Starter Kit</a>. The COVID-19 global pandemic has created an unprecedented
+        <p>The purpose of this virtual machine is to showcase the <a href="https://techdocs.ed-fi.org/x/1wjgBQ">Engage
+                Online Learners Starter Kit</a>. The COVID-19 global pandemic has created an unprecedented
             challenge in measuring and
             evaluating how engaged students are in their learning - be it remote, in-person, or hybrid. This Starter
             Kit, leveraging the <a href="https://techdocs.ed-fi.org/x/_rf_B">LMS Toolkit</a>, provides a solution
             environment in which data from an LMS
             is collected and combined with student demographic and assessment data from other key systems to help paint
             a more accurate picture of student engagement.</p>
-        <h2>Contents</h2>
-        <ol>
-            <li><a href="#beginning">Beginning at the End</a></li>
-            <li><a href="#understanding">Understanding the Components of the Starter Kit</a></li>
-            <li><a href="#using">Using the Starter Kit Components</a>
-                <ol>
-                    <li><a href="#platform">Ed-Fi Technology Platform</a></li>
-                    <li><a href="#toolkit">LMS Toolkit</a>
-                        <ol>
-                            <li><a href="#canvas">Canvas Extractor</a></li>
-                            <li><a href="#google">Google Classroom Extractor</a></li>
-                            <li><a href="#schoology">Schoology Extractor</a></li>
-                            <li><a href="#loader">LMS Data Store Loader</a></li>
-                            <li><a href="#harmonizer">LMS Harmonizer</a></li>
-                        </ol>
-                    </li>
-                    <li><a href="#powerbi">Power BI Dashboards</a></li>
-                </ol>
-            </li>
-            <li><a href="#together">Putting It All Together</a></li>
-        </ol>
 
-        <h2 id="beginning">Beginning at the End</h2>
-        <p>The end result of this Starter Kit is a set of dashboards in Power BI, designed to empower educators and
-            administrators to better understand&mdash;and act on&mdash; student trends with respect to assignment
-            completion in a Learning Management
-            System (LMS). This starter kit contains a small set of sample data to "light up" the visualizations. The
-            names and data are
-            realistic&mdash;but they are <i>not</i> real.</p>
-        <p><b>&rarr; To access the Power BI dashboards, simply double-click the Power BI file on the desktop.</b>
-        </p>
-        <h2 id="understanding">Understanding the Components of the Starter Kit</h2>
-        <p>As with all other Ed-Fi Starter Kits, the Ed-Fi Technology Platform is at the heart of the solution.
-            In a small variation from the typical solution, a new piece has been introduced: the LMS Toolkit.
-            Typically, and preferably, application vendors <i>push</i> data into the Ed-Fi API, which then
-            stores those data in the Ed-Fi ODS database. For example, a Student Information System (SIS) vendor
-            would
-            push roster, scheduling, and grade data into the API. In this Starter Kit, our aim is to integrate
-            data from LMSs. These LMS vendors make their own proprietary APIs available for queries, and currently
-            they do not support pushing data to an API. Therefore the LMS Toolkit has an unusual part to play:
-            it <i>pulls</i> data from the upstream LMS and stores it in the ODS, alongside the data provided by the
-            SIS and other vendors. The supported LMSs are:</p>
-        <ul>
-            <li>Canvas</li>
-            <li>Google Classroom</li>
-            <li>Schoology</li>
-        </ul>
-        <p>Once data are stored in the ODS database, the Ed-Fi Analytics Middle Tier provides a set of views,
-            some of which are custom to this starter kit, that simplify the process of extracting data from
-            the normalized ODS tables. The Power BI dashboards then read the data from those views in order
-            to support their visualizations.</p>
-        <p>Three other important tools are shown in the diagram below:</p>
-        <ul>
-            <li>ODS Admin App, providing administrative management of the API and ODS, </li>
-            <li>Swagger UI, a web application that documents the API and allows you to run sample calls against it,
-            </li>
-            <li>Console Bulk Loader, a console (command line) application for bulk uploading xml
-                files into the Ed-Fi API.</li>
-        </ul>
-        <div class="centered"><img
-                alt="Diagram showing the relationships between the ODS/API, LMS Toolkit, and Power BI dashboards."
-                class="framed" src="eolsk-diagram.png"></div>
-        <h2 id="using">Using the Starter Kit Components</h2>
-        <h3 id="platform">Ed-Fi Technology Platform</h3>
-        <p>The following URLs will let you access the three web applications in the Ed-Fi Technology Platform:
+        <h2>Ed-Fi Assets and Tools Installed on This Server</h2>
+        <h3>Power BI</h3>
+        <p>Open the <strong>Student Engagement dashboards</strong> in PowerBI by double-clicking on the Student
+            Engagement file on the desktop.</p>
+        <img src="open-powerbi.png" class="framed" alt="Open the PowerBI file on the desktop" />
+        <h3>Web Applications</h3>
+        <p>The following URLs will let you access the three web applications from the <strong>Ed-Fi Technology
+                Suite</strong>:
         </p>
         <ul>
             <li><a href="/WebApi" target="_blank">Ed-Fi ODS / API Suite 3, version 5.2</a></li>
             <li><a href="/AdminApp" target="_blank">Ed-Fi ODS Admin App for Suite 3, version 2.2</a></li>
             <li><a href="/SwaggerUI" target="_blank">SwaggerUI for Suite 3, version 5.2</a></li>
         </ul>
-        <p>A good first place to start is with <a href="/AdminApp" target="_blank">Admin App</a>, where you can
-            setup authentication credentials for using Swagger UI. When you first access the site, you'll go
-            through
-            a few initialization steps and then you'll need to create a vendor and application. The following
-            bullet
-            points will help guide you on the path.</p>
-        <ol>
-            <li>When creating a new user account, be sure to use a password that you will remember, as there
-                is no process for recovering a lost password.</li>
-            <li>One of the initialization steps says that you need to "restart the ODS". To do so, open
-                program "IIS" (aka InetMgr) from the Windows start menu, then right-click the Ed-Fi website
-                and choose the "Restart" command.</li>
-            <li>The Ed-Fi API is running in "YearSpecific" mode, meaning that there is a SQL Server database
-                dedicated specifically to the school year, as opposed to having many school years in the same
-                database. You will be presented with a screen like the following, where you'll need to enter
-                <code>2022</code> as the school year.<br />
-                <img class="framed" src="school-year.png" alt="Web form showing 2022 as the ODS Instance School Year" />
-            </li>
-            <li>When the initialization is done, create a vendor. The information you use doesn't really
-                matter in this case, but in a realistic scenario let's say you were connecting a company
-                called Your Favorite SIS. Then you might enter something like this:<br />
-                <img class="framed" src="add-vendor.png"
-                    alt="Web form showing adding vendor name, URL, and contact person" />
-            </li>
-            <li>
-                Now that you have a vendor, you need to create an Application.<br />
-                <img class="framed" src="define-application-button.png" alt="Define Applications button" /><br />
-                That button takes you to the next screen:<br />
-                <img class="framed" src="add-application-button.png" alt="Add Application button" />
-            </li>
-            <li>On this next screen, enter "SwaggerUI" as the application name, connect it to a Local Education
-                Agency,
-                and choose a Claim Set. The Claim Sets establish the scope of permissions. By choosing the SIS
-                vendor
-                claim set, the credentials we're about to create will have the ability to access all of the
-                resources
-                in a large subset of the Ed-Fi API.<br />
-                <img class="framed" src="create-vendor.png"
-                    alt="Web form showing SwaggerUI as the Application Name, Grand Bend ISD as the Local Education Agency to connect to, and SIS Vendor as the Claim Set Name." />
-            </li>
-            <li>Once you click the "Add Application" button, you'll be given a screen that contains a random Key
-                and Secret. These are the secure credentials that you need to plugin to Swagger UI &mdash; or,
-                if
-                this
-                were a production deployment, you would give directly to the vendor. Be sure to copy and paste
-                both
-                values somewhere, as you won't be able to access them again.<br />
-                <img class="framed" src="key-and-secret.png"
-                    alt="Image showing the new vendor key and secret for accessing Swagger UI" />
-            </li>
-        </ol>
-        <p class="tip">For more information on using Admin App, see the <a
-                href="https://techdocs.ed-fi.org/display/ADMIN/User+Guide" target="_blank">User Guide.</a>
+        <h3>Other Tools</h3>
+        <p>The <strong>LMS Toolkit</strong> Python packages are in <code>C:\Ed-Fi\LMS-Toolkit-main</code>.
+            When using the Extractors to pull data from your own instance of Canvas, Google Classroom,
+            or Schoology, the LMS Toolkit is pre-configured to store and consume CSV files in
+            <code>C:\Ed-Fi\lms-data</code>.
         </p>
-        <p>Now that you have a key and secret, you can try them out in <a href="/SwaggerUI" target="_blank">Swagger
-                UI</a>.</p>
-        <ol>
-            <li>On the first screen, in the upper-right corner select 2022 from the dropdown.<br />
-                <img src="swagger-select-year.png" alt="Choosing the year in SwaggerUI" class="framed" />
-            </li>
-            <li>Now click into the Resources using the link on the page.</li>
-            <li>You'll see a long list of resources. In order to use any of them, you need to authenticate.
-                Click on
-                the lock button.<br />
-                <img src="swagger-lock.png" alt="Authorize button in SwaggerUI" />
-            </li>
-            <li>And now enter the key and secret that you created in Admin App.
-                <img src="swaggerui-key-secret.png" alt="Entering the key and secret into SwaggerUI" class="framed" />
-            </li>
-        </ol>
-        <p class="tip">For more information on using SwaggerUI, see <a
-                href="https://techdocs.ed-fi.org/display/ODSAPIS3V520/Using+the+Online+Documentation"
-                target="_blank">Using the Online Documentation.</a></p>
-
-        <h3 id="toolkit">LMS Toolkit</h3>
-        <p>The components of the LMS Toolkit all run at the command line using the <code>poetry</code> command.
-            Each component has its own configuration and execution instructions, highlights of which are
-            provided
-            below.
-            To run the commands as shown, you need to open PowerShell and change to the
-            <code>c:\ed-fi\LMS-Toolkit-main\src</code> directory.
-            The three Extractors will not work out of the box, as they require additional security
-            configuration.
-            You can
-            only connect to these LMSs if you have an administrative account in your education agency's account.
+        <p>The Console Bulk Loader executable, used to upload some of the XML sample
+            data, is located in <code>c:\Ed-Fi\Bulk-Load-Client</code>.
         </p>
-        <h4 id="canvas">Canvas Extractor</h4>
-        <p>Using Visual Studio Code, open <code>c:\ed-fi\LMS-Toolkit-main\src\canvas-extractor\.env</code>. In
-            there
-            you'll need to customize the <code>CANVAS_BASE_URL</code> and <code>CANVAS_ACCESS_TOKEN</code>
-            values.
-            The Base
-            URL will be something like "https://your-school-district.instructure.com". To get an access token,
-            open
-            that URL, then navigate to Account > Settings, scroll down to "Approved Integrations," and click the
-            "New Access Token" button. Once that is done, you can run in PowerShell:
-        </p>
-        <pre><code class="language-powershell">push canvas-extractor
-poetry run python edfi_canvas_extractor
-pop</code></pre>
-        <h4 id="google">Google Classroom Extractor</h4>
-        <p>Using Visual Studio Code, open
-            <code>c:\ed-fi\LMS-Toolkit-main\src\google-classroom-extractor\.env</code>. In there
-            you'll need to customize the <code>CLASSROOM_ACCOUNT</code> value by inserting the email address for
-            an administrative account. In addition, you must create a <code>service-account.json</code> file.
-        </p>
-        <ol>
-            <li>Sign-in to the <a href="https://console.developers.google.com/apis/library" target="_blank">API
-                    Library</a> with the administrative account used in the <code>.env</code> file.</li>
-            <li>Create a Service Account and API Key on the <a
-                    href="https://console.cloud.google.com/iam-admin/serviceaccounts/create" target="_blank">IAM
-                    &amp; Admin: Create service account</a> page.
-                <ol>
-                    <li>Give the new service account a name like "Ed-Fi Extractor"
-                        and click Create.</li>
-                    <li>Grant the service account the "Viewer" role and click `Continue` then
-                        Done, skipping step 3: "Grant users access to this service account".</li>
-                    <li>The new service account will be displayed in a table.
-                        Click on the three dots for the account and select Manage Keys.</li>
-                    <li>On the next page, click the `Add Key` button, then choose JSON and click
-                        "Create" in the dialog box.</li>
-                    <li>A JSON file will be downloaded from your browser, which is the API key.
-                        Rename it to <code>service-account.json</code>. Save this into the project directory.
-                    </li>
-                    <li>Finally, click on the service account to view details and
-                        copy the Unique ID field for the next step.</li>
-                </ol>
-            </li>
-            <li>Specify the access scope for the account on the <a
-                    href="https://admin.google.com/ac/owl/domainwidedelegation">Domain-wide
-                    Delegation</a> page.
-                <ol>
-                    <li>Add a new API client and provide the service account Unique
-                        ID (<code>client_id</code> in the json file) in the <code>Client ID</code> field.</li>
-                    <li>Paste the following scopes into the OAuth scopes field and
-                        click "Authorize":<br />
-                        <pre><code>https://www.googleapis.com/auth/admin.directory.orgunit,
-https://www.googleapis.com/auth/admin.reports.usage.readonly,
-https://www.googleapis.com/auth/classroom.courses,
-https://www.googleapis.com/auth/classroom.coursework.students,
-https://www.googleapis.com/auth/classroom.profile.emails,
-https://www.googleapis.com/auth/classroom.rosters,
-https://www.googleapis.com/auth/classroom.student-submissions.students.readonly,
-https://www.googleapis.com/auth/admin.reports.audit.readonly</code></pre>
-                    </li>
-                </ol>
-            </li>
-        </ol>
-        <p>Now you can run the Google Extractor:</p>
-        <pre><code class="language-powershell">push google-classroom-extractor
-poetry run python edfi_google_classroom_extractor
-pop</code></pre>
-        <h4 id="schoology">Schoology Extractor</h4>
-        <p>Using Visual Studio Code, open
-            <code>c:\ed-fi\LMS-Toolkit-main\src\schoology-extractor\.env</code>, and then sign-in
-            to the <a href="https://app.schoology.com/api" target="_blank">Schoology API</a> to acquire
-            an administrative key and secret. Enter these values into the <code>.env</code> file's
-            <code>SCHOOLOGY_KEY</code> and <code>SCHOOLOGY_SECRET</code> variables. Now in PowerShell, run:
-        </p>
-        <p>Now you can run the Google Extractor:</p>
-        <pre><code class="language-powershell">push schoology-extractor
-poetry run python edfi_schoology_extractor
-pop</code></pre>
-        <h4 id="loader">LMS Data Store Loader</h4>
-        <p>The above commands created CSV files and saved them to disk. These can be used by themselves
-            for all kinds of interesting analyses; please see the readme file in
-            <code>c:\ed-fi\LMS-Toolkit-main\src\notebooks</code> for information on how to run
-            the sample Jupyter Notebooks we have provided (you can open and read this file easily with Visual
-            Studio Code).
-        </p>
-        <p>But for the purpose of this Starter Kit, we need to move the data into SQL Server &mdash; in fact,
-            into the same ODS database that has all of the <code>edfi.*</code> tables used by the Ed-Fi API.
-            To do so, you can run the LMS Data Store Loader from PowerShell (no additional configuration
-            required!):
-        </p>
-        <pre><code class="language-powershell">push lms-ds-loader
-poetry run python edfi_lms_ds_loader
-pop</code></pre>
-        <p>You can open SQL Server Management Studio to see the end-result:</p>
-        <ol>
-            <li>Connect server <code>localhost</code> and database <code>EdFi_ODS_2022</code></li>
-            <li>Run a few queries on the tables in the <code>lms.*</code> schema. Examples:<br />
-                <pre><code class="language-sql">select * from lms.LMSUser;
-select * from lms.Assignment;</pre></code>
-            </li>
-        </ol>
-        <h4 id="harmonizer">LMS Harmonizer</h4>
-        <p>The <code>lms.*</code> tables used by the LMS Data Store Loader are modeled to match the CSV files,
-            and
-            there
-            is no direct connection between them and the SIS data. The LMS Toolkit comes with an extension to
-            the Ed-Fi ODS/API, called <code>LMSX</code>. This extension has two tables in it, for storing the
-            Assignment and Assignment Submission, with relationships back to the <code>edfi.*</code> tables. The
-            LMS Harmonizer package provides the logic for making these connections. In order to connect
-            the LMS data to SIS data in the Ed-Fi ODS, we have to make a few concrete statements about
-            how data are stored in the LMS:</p>
-        <ol>
-            <li>The section or course in the LMS must have a reference to the Section Identifier from the SIS,
-                and that Section Identifier in the SIS must be a unique value in the account.
+        <h2>Learn More</h2>
+        <p>For more information on this Starter Kit, including how to interact with the tools installed on this VM,
+            please see:</p>
+        <ul>
+            <li><a href="https://techdocs.ed-fi.org/x/2gjgBQ">Quick Start Guide</a>
                 <ul>
-                    <li>Canvas: save the SIS's section identifier in the Section's <code>sis_section_id</code> value.
-                    </li>
-                    <li>Google Classroom: save the SIS's section identifier as a Course Alias in the format
-                        <code>EdFiLMS.[insert actual section identifier here]</code>
-                    </li>
-                    <li>Schoology: save the SIS's section identifier in the Section's <code>section_school_code</code>
-                        value.</li>
+                    <li><a href="https://techdocs.ed-fi.org/x/hYgQBg">How To Interact with the Ed-Fi Platform</a></li>
+                    <li><a href="https://techdocs.ed-fi.org/x/iIgQBg">How to Use the LMS Toolkit</a></li>
+                    <li><a href="https://techdocs.ed-fi.org/x/iogQBg">How to Update the Power BI Dashboards</a></li>
                 </ul>
             </li>
-            <li>Each student in the LMS have a link back to the student in the SIS. For Canvas and Schoology,
-                it is assumed that the Student's <code>UniqueId</code> value (the local, SIS-specific
-                identifier)
-                has been loaded into the student record (in Canvas, use the <code>sis_user_id</code> field, and use the
-                <code>school_uid</code> field in Schoology), whereas in Google Classroom we must match by the student's
-                e-mail address.
-            </li>
-        </ol>
-        <p>When these statements are true, then the LMS Harmonizer can match an LMS Section to a SIS Section,
-            and an LMS User to a SIS Student. After matching these records together, the Assignment and
-            Assignment Submission data can be copied to the <code>lmsx.Assignment</code> and
-            <code>lmsx.AssignmentSubmission</code> tables. To run the Harmonizer, in PowerShell:
-        </p>
-        <pre><code class="language-powershell">push lms-harmonizer
-poetry run python edfi_lms_harmonizer
-pop</code></pre>
-        <p class="tip">
-            Please note: if you run one of the extractors on your own LMS instance, the data you download will
-            not match the fictional Grand Bend school district data in the ODS. Therefore the LMS Harmonizer
-            will not be able to match up any records unless by lucky coincidence. To work around this, you
-            could create some new "SIS-style" records using SwaggerUI, and then run the Harmonizer.
-        </p>
-        <h2 id="powerbi">Power BI Dashboards</h2>
-        <p>For arguments' sake, let's say that you have been able to upload new data into the LMSX extension
-            tables in the ODS database. Now you want to see them in the Power BI Dashboards.</p>
-        <p>For best performance, these reports are setup to cache data instead of directly querying the
-            database for every user interaction. That means the data will need to be refreshed. Click on the
-            Refresh button in the Power BI command ribbon.</p>
-        <div class="centered">
-            <img src="powerbi-refresh-button.png" class="framed" alt="The Refresh button in Power BI Desktop" />
-        </div>
-        <p>
-            You will be asked to confirm the database connection; just accept what is there. Then you will get
-            a warning that Power BI Desktop is unable to connect to SQL Server over an encrypted connection. This
-            is occurring because SQL Server is in its default state, using a self-signed certificate, and Power BI
-            does not "trust" that certificate. Because we're not communicating over the open Internet &mdash; just
-            from one application to another on the same demonstration server &mdash; this is an acceptable risk.
-        </p>
-        <div class="centered">
-            <img src="powerbi-encryption-support.png" class="framed"
-                alt="Click OK to accept the unencrypted connection" />
-        </div>
-        <h2 id="together">Putting It All Together</h2>
-        <p>To summarize, in order to use this system you would:</p>
-        <ol>
-            <li>Setup the SIS vendor to connect to your Ed-Fi ODS/API by giving them a key and secret generated
-                using ODS Admin App.</li>
-            <li>In your LMS, make sure that sections and users have the appropriate configuration data to match
-                them to SIS records.</li>
-            <li>Setup the <code>.env</code> file for the appropriate extractor, using the unique authentication
-                credentials for your account on the given LMS.</li>
-            <li>Manually, or using a scheduled task or workflow, run the LMS Toolkit packages in the following sequence:
-                <ol>
-                    <li>each relevant Extractor,</li>
-                    <li>the LMS Data Store Loader,</li>
-                    <li>and the LMS Harmonizer</li>
-                </ol>
-            </li>
-            <li>Finally, refresh the data in Power BI Desktop.
-        </ol>
+            <li><a href="https://techdocs.ed-fi.org/x/igngBQ">Dashboard Walkthrough</a></li>
+            <li><a href="https://techdocs.ed-fi.org/x/3QjgBQ">Setup Guide</a> (for installing this system in your own
+                environment)</li>
+        </ul>
     </div>
 </body>
 

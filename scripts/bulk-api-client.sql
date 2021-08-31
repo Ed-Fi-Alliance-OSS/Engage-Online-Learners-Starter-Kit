@@ -57,8 +57,8 @@ insert into dbo.ApiClients (
   Application_ApplicationId
 )
 select
-  'consoleBulkLoader',
-  'consoleBulkLoaderSecret',
+  $(ClientKey),
+  $(ClientSecret),
   'Client Bulk Loader',
   1,
   0,

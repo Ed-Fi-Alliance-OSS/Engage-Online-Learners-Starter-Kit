@@ -52,7 +52,6 @@ $ProgressPreference = "SilentlyContinue"
 $EdFiDir = "C:/Ed-Fi"
 $WebRoot = "C:/inetpub/Ed-Fi"
 $skDir = "$EdFiDir/Engage-Online-Learners-Starter-Kit-main"
-$skDataDir = "$skDir/data"
 
 Function Get-StarterKitFiles {
     Write-Host "Downloading additional starter kit files"
@@ -81,77 +80,6 @@ Function Install-LandingPage {
     $Shortcut.Save()
 }
 
-Function Invoke-BulkLoadInternetAccessData {
-    Write-Host "Uploading additional sample data"
-
-    $bulkTemp = "./bulk-temp"
-    New-Item -Path $bulkTemp -ItemType Directory -Force | Out-Null
-
-    $bulkLoader = "C:/Ed-Fi/Bulk-Load-Client/EdFi.BulkLoadClient.Console.exe"
-
-    # Download the XSD
-    $xsdUrl = "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/v5.2/Application/EdFi.Ods.Standard/Artifacts/Schemas"
-    $schemas = "./schemas"
-    New-Item -Path $schemas -ItemType Directory -Force | Out-Null
-
-    @(
-        "Ed-Fi-Core.xsd",
-        "Interchange-AssessmentMetadata.xsd",
-        "Interchange-Descriptors.xsd",
-        "Interchange-EducationOrgCalendar.xsd",
-        "Interchange-EducationOrganization.xsd",
-        "Interchange-Finance.xsd",
-        "Interchange-MasterSchedule.xsd",
-        "Interchange-Parent.xsd",
-        "Interchange-PostSecondaryEvent.xsd",
-        "Interchange-StaffAssociation.xsd",
-        "Interchange-Standards.xsd",
-        "Interchange-Student.xsd",
-        "Interchange-StudentAssessment.xsd",
-        "Interchange-StudentAttendance.xsd",
-        "Interchange-StudentCohort.xsd",
-        "Interchange-StudentEnrollment.xsd",
-        "Interchange-StudentGrade.xsd",
-        "Interchange-StudentGradebook.xsd",
-        "Interchange-StudentIntervention.xsd",
-        "Interchange-StudentProgram.xsd",
-        "Interchange-StudentTranscript.xsd",
-        "Interchange-Survey.xsd",
-        "SchemaAnnotation.xsd"
-    ) | ForEach-Object {
-        $xsdOut = "./$schemas/$_"
-        Invoke-RestMethod -Uri "$xsdUrl/$_" -OutFile $xsdOut
-    }
-
-    # Need to automate the process of getting a key and secret for the bulk
-    # loader to upload the XML file.
-    $params = @{
-        Database = "EdFi_Admin"
-        HostName = "localhost"
-        InputFile = Resolve-Path -Path "./bulk-api-client.sql"
-        OutputSqlErrors = $True
-    }
-    Invoke-SqlCmd @params
-
-    $key = "consoleBulkLoader"
-    $secret = "consoleBulkLoaderSecret"
-    $year = "2022"
-    $url = "https://$(hostname)/WebApi"
-
-    $params = @(
-        "-b", $url,
-        "-d", (Resolve-Path -Path $skDataDir),
-        "-k", $key,
-        "-s", $secret,
-        "-w", (Resolve-Path -Path $bulkTemp),
-        "-x", (Resolve-Path -Path $schemas),
-        "-y", $year
-    )
-
-    Write-Host -ForegroundColor Magenta "Executing: $bulkLoader " @params
-    &$bulkLoader @params
-}
-
 function Set-WallPaper {
     Write-Output "Installing Ed-Fi wallpaper image"
 
@@ -172,21 +100,32 @@ New-Item -Path $WebRoot -ItemType Directory -Force | Out-Null
 Import-Module -Name "$PSScriptRoot/modules/Tool-Helpers.psm1" -Force
 Import-Module -Name "$PSScriptRoot/modules/Configure-Windows.psm1" -Force
 Import-Module -Name "$PSScriptRoot/modules/Install-LMSToolkit.psm1" -Force
+Import-Module -Name "$PSScriptRoot/modules/Install-AdditionalSampleData.psm1" -Force
 
+# ./install-toolkit.ps1 -PlatformVersion $PlatformVersion -AdminAppVersion $AdminAppVersion -ToolsPath $ToolsPath
 
-./install-toolkit.ps1 -PlatformVersion $PlatformVersion -AdminAppVersion $AdminAppVersion -ToolsPath $ToolsPath
+# Install-LMSSampleData -InstallDir $EdFiDir
 
-Install-LMSSampleData -InstallDir $EdFiDir
+# Set-WallPaper
 
-Set-WallPaper
+# Get-StarterKitFiles
 
-Get-StarterKitFiles
-Invoke-BulkLoadInternetAccessData
-Install-LandingPage
+$key = "dfghjkl34567"
+$secret = "4eryftgjh-pok%^K`$E%RTYG"
+$bulkLoadExe = "C:/Ed-Fi/Bulk-Load-Client/EdFi.BulkLoadClient.Console.exe"
+
+$params = @{
+    ClientKey = $key
+    ClientSecret = $secret
+    BulkLoadExe = $bulkLoadExe
+    UsingPlatformVersion52 = ($PlatformVersion -eq "5.2")
+}
+Invoke-BulkLoadInternetAccessData @params
+# Install-LandingPage
 
 # Move the Power BI file to the desktop
-$pbix = "$skDir/StudentEngagementDashboard.pbix"
-Move-Item -Path $pbix -Destination "$env:USERPROFILE/Desktop"
+# $pbix = "$skDir/StudentEngagementDashboard.pbix"
+# Move-Item -Path $pbix -Destination "$env:USERPROFILE/Desktop"
 
 # Restore the progress reporting
 $ProgressPreference = "Continue"

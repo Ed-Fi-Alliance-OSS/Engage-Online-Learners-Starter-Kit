@@ -111,7 +111,7 @@ function Install-WebApi {
         PackageVersion = $PackageVersion
         DownloadPath = $DownloadPath
         ToolsPath = $DownloadPath
-        InstallType = "YearSpecific"
+        InstallType = "SharedInstance"
         DbConnectionInfo = @{
             Engine="SqlServer"
             Server="localhost"
@@ -262,7 +262,7 @@ function Install-AdminApp {
         OdsDatabaseName = "EdFi_Ods"
         OdsApiUrl = "https://$(hostname)/WebApi"
         AdminAppFeatures = @{
-            ApiMode = "YearSpecific"
+            ApiMode = "SharedInstance"
         }
         WebSitePath = (Resolve-Path $WebRoot)
     }

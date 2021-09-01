@@ -128,6 +128,7 @@ function Install-NuGetPackage {
     Write-Host "Installing package $PackageName version $PackageVersion"
     &$NugetExe @params | Out-Host
 
+    Test-ExitCode
     return "$ToolsPath/$PackageName.$PackageVersion"
 }
 
@@ -136,10 +137,51 @@ function Invoke-SqlCmdOnODS {
     param (
         [Parameter(Mandatory=$True)]
         [string]
-        $FileName
+        $FileName,
+
+        [string]
+        $DatabaseServer = "localhost",
+
+        # Leave blank to use integrated security
+        [string]
+        $DatabaseUserName = "",
+
+        [string]
+        $DatabasePassword = "",
+
+        [string]
+        $DatabaseName = "EdFi_Ods"
     )
 
-    &sqlcmd -S localhost -E -d EdFi_ODS_2022 -b -i $FileName
+    $cmd = "sqlcmd -S $DatabaseServer -E -d $DatabaseName -b -i $FileName"
+
+    if ($DatabaseUserName -ne ""){
+        $cmd += " -U $DatabaseUserName -P $DatabasePassword"
+    }
+
+    Invoke-Expression $cmd
+    Test-ExitCode
 }
 
+function Invoke-RefreshPath {
+    # Some of the installs in this process do not set the immediate path correctly.
+    # This function simply reads the global path settings and reloads them. Useful
+    # when you can't even get to chocolatey's `refreshenv` command.
+
+    $env:Path=(
+        [System.Environment]::GetEnvironmentVariable("Path","Machine"),
+        [System.Environment]::GetEnvironmentVariable("Path","User")
+    ) -match '.' -join ';'
+}
+
+function Test-ExitCode {
+    if ($LASTEXITCODE -ne 0) {
+
+        throw @"
+The last task failed with exit code $LASTEXITCODE
+
+$(Get-PSCallStack)
+"@
+    }
+}
 Export-ModuleMember *

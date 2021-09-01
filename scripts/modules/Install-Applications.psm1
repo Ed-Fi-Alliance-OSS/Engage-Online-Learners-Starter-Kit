@@ -128,4 +128,46 @@ function Install-PowerBI {
     Stop-Transcript
 }
 
+function Install-Python {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True)]
+        [string]
+        $LogFile
+    )
+
+    Start-Transcript -Path $LogFile -Append
+
+    &choco install python3 --version 3.9.6 -y
+
+    # This package does not add Python and Pip to the path
+    $additions = "C:\Python39\;C:\Python39\Scripts"
+    $env:PATH = "$env:PATH;$additions"
+
+    $value = [Environment]::GetEnvironmentVariable("PATH", "Machine")
+    $value = "$value;$additions"
+    [Environment]::SetEnvironmentVariable("PATH", $value, "Machine")
+
+    Stop-Transcript
+}
+
+function Install-Poetry {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True)]
+        [string]
+        $LogFile
+    )
+
+    Start-Transcript -Path $LogFile -Append
+
+    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python -
+    &refreshenv
+
+    $env:PATH = "$env:PATH;$env:USERPROFILE\.poetry\bin"
+
+    Stop-Transcript
+}
+
+
 Export-ModuleMember *

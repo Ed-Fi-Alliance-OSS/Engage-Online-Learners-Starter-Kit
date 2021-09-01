@@ -56,39 +56,47 @@ function New-BulkClientKeyAndSecret {
 
         [Parameter(Mandatory=$True)]
         [string]
-        $ClientSecret
+        $ClientSecret,
+
+        [string]
+        $DatabaseServer = "localhost"
     )
 
     Write-Host "Creating temporary credentials for the bulk upload process"
 
+    $file = (Resolve-Path -Path "$PSScriptRoot/bulk-api-client.sql")
     $params = @{
         Database = "EdFi_Admin"
-        HostName = "localhost"
-        InputFile = Resolve-Path -Path "./bulk-api-client.sql"
+        HostName = $DatabaseServer
+        InputFile = $file
         OutputSqlErrors = $True
         Variable = @(
             "ClientKey=$ClientKey",
             "ClientSecret=$ClientSecret"
         )
     }
+
     Invoke-SqlCmd @params
+    Test-ExitCode
 }
 
 function Remove-BulkClientKeyAndSecret {
+    param (        
+        [string]
+        $DatabaseServer = "localhost"
+    )
 
     Write-Host "Removing temporary bulk load credentials"
 
-    $query = @"
-DELETE FROM dbo.ApiClient WHERE [name] = 'Client Bulk Loader';
-"@
-
+    $file = (Resolve-Path -Path "$PSScriptRoot/remove-bulk-api-client.sql")
     $params = @{
         Database = "EdFi_Admin"
-        HostName = "localhost"
-        Query = $query
+        HostName = $DatabaseServer
+        InputFile = $file
         OutputSqlErrors = $True
     }
     Invoke-SqlCmd @params
+    Test-ExitCode
 }
 
 function Invoke-BulkLoadInternetAccessData {
@@ -116,11 +124,11 @@ function Invoke-BulkLoadInternetAccessData {
 
     New-BulkClientKeyAndSecret -ClientKey $ClientKey -ClientSecret $ClientSecret
 
-        $url = "https://$(hostname)/WebApi"
+    $url = "https://$(hostname)/WebApi"
 
     $bulkParams = @(
         "-b", $url,
-        "-d", (Resolve-Path -Path $skDataDir),
+        "-d", (Resolve-Path -Path "$PSScriptRoot/../../data"),
         "-k", $ClientKey,
         "-s", $ClientSecret,
         "-w", (Resolve-Path -Path $bulkTemp)
@@ -131,16 +139,20 @@ function Invoke-BulkLoadInternetAccessData {
         # download schema from the API itself. Workaround: have the schema
         # files available locally. This bug will be resolved in the next
         # major release.
+
+        Write-Host "Downloading XML schema files"
+
         $schemaDirectory = "$PSScriptRoot/schemas"
         New-Item -Path $schemaDirectory -ItemType Directory -Force | Out-Null
-        Get-SchemaXSDFiles -SchemaDirectory $schemaDirectory
+        Get-SchemaXSDFilesFor52 -SchemaDirectory $schemaDirectory
 
-        $bulkParams.Add("-x")
-        $bulkParams.Add((Resolve-Path -Path $schemaDirectory))
+        $bulkParams += "-x"
+        $bulkParams += (Resolve-Path -Path $schemaDirectory)
     }
 
-    Write-Host -ForegroundColor Magenta "Executing: $bulkLoader " @bulkParams
-    &$BulkLoadExe @params
+    Write-Host -ForegroundColor Magenta "Executing: $BulkLoadExe " $bulkParams
+    &$BulkLoadExe @bulkParams
+    Test-ExitCode
 
     Remove-BulkClientKeyAndSecret
 }

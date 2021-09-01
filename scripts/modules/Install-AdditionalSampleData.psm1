@@ -5,7 +5,7 @@
 
 $ErrorActionPreference = "Stop"
 
-Function Get-SchemaXSDFilesFor52 {
+function Get-SchemaXSDFilesFor52 {
     param (
         [Parameter(Mandatory=$True)]
         [string]
@@ -48,7 +48,7 @@ Function Get-SchemaXSDFilesFor52 {
     }
 }
 
-Function New-BulkClientKeyAndSecret {
+function New-BulkClientKeyAndSecret {
     param (
         [Parameter(Mandatory=$True)]
         [string]
@@ -74,7 +74,7 @@ Function New-BulkClientKeyAndSecret {
     Invoke-SqlCmd @params
 }
 
-Function Remove-BulkClientKeyAndSecret {
+function Remove-BulkClientKeyAndSecret {
 
     Write-Host "Removing temporary bulk load credentials"
 
@@ -91,7 +91,7 @@ DELETE FROM dbo.ApiClient WHERE [name] = 'Client Bulk Loader';
     Invoke-SqlCmd @params
 }
 
-Function Invoke-BulkLoadInternetAccessData {
+function Invoke-BulkLoadInternetAccessData {
     param (
         [Parameter(Mandatory=$True)]
         [string]
@@ -116,16 +116,14 @@ Function Invoke-BulkLoadInternetAccessData {
 
     New-BulkClientKeyAndSecret -ClientKey $ClientKey -ClientSecret $ClientSecret
 
-    $year = "2022"
-    $url = "https://$(hostname)/WebApi"
+        $url = "https://$(hostname)/WebApi"
 
     $bulkParams = @(
         "-b", $url,
         "-d", (Resolve-Path -Path $skDataDir),
         "-k", $ClientKey,
         "-s", $ClientSecret,
-        "-w", (Resolve-Path -Path $bulkTemp),
-        "-y", $year
+        "-w", (Resolve-Path -Path $bulkTemp)
     )
 
     if ($UsingPlatformVersion52) {

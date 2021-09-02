@@ -301,7 +301,7 @@ function Install-AnalyticsMiddleTier {
 
     Invoke-RestMethod -Uri $url -OutFile $amtZip
     Expand-Archive -Path $amtZip -Destination $DownloadPath -Force
-    $amtDirectory = "$DownloadPath/Ed-Fi-Analytics-Middle-Tier"
+    $amtDirectory = "$DownloadPath/Ed-Fi-Analytics-Middle-Tier-$BranchOrTag"
 
     # Install the core collection, plus: Engage, EWS, RLS, and Indexes
     $sln = "$amtDirectory/src/EdFi.AnalyticsMiddleTier.sln"

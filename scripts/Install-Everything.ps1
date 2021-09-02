@@ -22,6 +22,7 @@
 
     1. Install-ThirdPartyApplications.ps1
     2. Install-EdFiTechnologySuite.ps1
+    3. Install-StarterKit.ps1
 
     Please review the script files above for more information on the actions
     they take.

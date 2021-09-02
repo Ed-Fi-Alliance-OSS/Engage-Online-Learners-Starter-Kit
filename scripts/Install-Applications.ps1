@@ -80,17 +80,15 @@ Set-ExecutionPolicy bypass -Scope CurrentUser -Force;
     -AnalyticsMiddleTierVersion $AnalyticsMiddleTierVersion `
     -EdFiNuGetFeed $EdFiNuGetFeed
 
-# NOTE: an astute reader might wonder why we're not calling Install-StarterKit.ps1 here.
-# The reason is simple: the scripts above install some tools that are required for
-# the full starter kit install and... sadly... require a reboot.
+# Restart IIS, which also requires stopping the Windows Activation Service.
+# This step is necessary in many cases for IIS to recognize and use the newly
+# installed .NET Core Hosting Bundle
+Stop-Service -name was -Force -Confirm:$False
+Start-Service -name w3svc
 
-Write-Host @"
-All of the initial components have been installed. Now we need to finish installing the
-Starter Kit specific components, one of which is sample data. Loading the sample data
-requires accessing the running API; the API relies on the .NET Core Hosting Bundle;
-and the hosting bundle does not work on some VM's without a restart. Next steps:
-
-1. Restart your virtual machine
-2. Run `Install-StarterKit.ps1`
-3. Check out the "Start Here" shortcut on the desktop.
-"@
+./Install-StarterKit.ps1 `
+    -ToolsPath  $ToolsPath `
+    -ConsoleBulkLoadDirectory "$InstallPath/Bulk-Load-Client" `
+    -LMSToolkitDirectory "$InstallPath/LMS-Toolkit-main" `
+    -WebRoot $WebRoot `
+    -OdsPlatformVersion $OdsPlatformVersion

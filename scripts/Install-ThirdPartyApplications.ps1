@@ -48,8 +48,11 @@ Install-DotNet -LogFile $applicationSetupLog
 Install-SQLServer -LogFile $applicationSetupLog
 Install-VisualStudioCode -LogFile $applicationSetupLog
 Install-GoogleChrome -LogFile $applicationSetupLog
-Install-PowerBI -LogFile $applicationSetupLog -DownloadPath $ToolsPath
 Install-Python -LogFile $applicationSetupLog
 Install-Poetry -LogFile $applicationSetupLog
+
+# This installer can sit around running in the background longer than expected,
+# which causes problems for the installs above. Thus best to run it last.
+Install-PowerBI -LogFile $applicationSetupLog -DownloadPath $ToolsPath
 
 Invoke-RefreshPath

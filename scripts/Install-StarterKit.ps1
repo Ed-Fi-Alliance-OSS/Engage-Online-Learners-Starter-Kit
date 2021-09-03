@@ -52,7 +52,7 @@ Import-Module -Name "$PSScriptRoot/modules/Install-AdditionalSampleData.psm1" -F
 function Install-LandingPage {
     Write-Host "Installing the landing page"
 
-    Copy-Item -Path "../vm-docs/*" -Destination $WebRoot
+    Copy-Item -Path "$PSScriptRoot/../vm-docs/*" -Destination $WebRoot
 
     $new_object = New-Object -ComObject WScript.Shell
     $destination = $new_object.SpecialFolders.Item("AllUsersDesktop")

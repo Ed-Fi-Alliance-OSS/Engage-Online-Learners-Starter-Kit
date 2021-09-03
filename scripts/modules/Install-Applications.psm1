@@ -25,6 +25,7 @@ function Install-Choco {
         &refreshenv
     }
     &choco feature disable --name showDownloadProgress --execution-timeout=$installTimeout
+    Test-ExitCode
 
     return Get-Command "choco.exe" -ErrorAction SilentlyContinue
 }
@@ -40,7 +41,10 @@ function Install-SQLServer {
 
     &choco install sql-server-express @common_args -o -ia `
         "'/IACCEPTSQLSERVERLICENSETERMS /Q /ACTION=install /INSTANCEID=MSSQLSERVER /INSTANCENAME=MSSQLSERVER /TCPENABLED=1 /UPDATEENABLED=FALSE'"
+    Test-ExitCode
+
     &choco install sql-server-management-studio @common_args
+    Test-ExitCode
     &refreshenv
 
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Confirm:$false
@@ -63,7 +67,10 @@ function Install-DotNet {
     Enable-WindowsOptionalFeature -Online -FeatureName IIS-WebServerRole -NoRestart | Out-Null
 
     &choco install dotnetcore-sdk @common_args
+    Test-ExitCode
+
     &choco install dotnetcore-windowshosting @common_args
+    Test-ExitCode
     &refreshenv
 
     Stop-Transcript
@@ -79,6 +86,7 @@ function Install-VisualStudioCode {
     Start-Transcript -Path $LogFile -Append
 
     &choco install vscode @common_args
+    Test-ExitCode
     &refreshenv
 
     Remove-Item "C:\Users\*\Desktop\Visual Studio Code.lnk" -Force | Out-Null
@@ -97,6 +105,7 @@ function Install-GoogleChrome {
     Start-Transcript -Path $LogFile -Append
 
     &choco install GoogleChrome @common_args
+    Test-ExitCode
     &refreshenv
 
     Remove-Item "C:\Users\*\Desktop\Visual Studio Code.lnk" -Force | Out-Null
@@ -125,6 +134,8 @@ function Install-PowerBI {
     Invoke-RestMethod -Uri $url -OutFile $installer
 
     &$installer -quiet -norestart ACCEPT_EULA=1
+    Test-ExitCode
+
     Stop-Transcript
 }
 
@@ -139,6 +150,7 @@ function Install-Python {
     Start-Transcript -Path $LogFile -Append
 
     &choco install python3 --version 3.9.6 -y
+    Test-ExitCode
 
     # This package does not add Python and Pip to the path
     $additions = "C:\Python39\;C:\Python39\Scripts"

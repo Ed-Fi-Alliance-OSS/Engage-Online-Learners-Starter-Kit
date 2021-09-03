@@ -2,8 +2,8 @@
 packer_cache/
 .tools/
 
-# Crash log
-crash.log
+# All log files
+*.log
 
 # For built boxes
 *.box

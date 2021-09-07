@@ -9,7 +9,7 @@
 
     .DESCRIPTION
         Configures Packer logging, Defines a network adapter and vm switch,
-        compresses assessment PowerShell scripts, and intitiates the packer build.
+        compresses assessment PowerShell scripts, and initiates the packer build.
     .EXAMPLE
         PS C:\> .\build-vm.ps1
         Creates a virtual machine image that can be imported using the Hyper-V Manager

@@ -39,10 +39,24 @@
     * Ed-Fi LMS Toolkit, latest development work (`main` branch).
 
     Note: the Analytics Middle Tier and LMS Toolkit are installed from the
-    `main` branch by default because these are the primary two systems
-    that are under development to support this Starter Kit. Experimentally,
-    you can change the versions to any tag from those code repositories and
-    the install process will alternately download that tag instead of `main`.
+    `main` branch by default because these are the primary two systems that are
+    under development to support this Starter Kit. Experimentally, you can
+    change the versions to any tag from those code repositories and the install
+    process will alternately download that tag instead of `main`.
+
+    .EXAMPLE
+    PS> .\Install-EdFiTechnologySuite.ps1
+    Installs with all default parameters
+
+    .EXAMPLE
+    PS> .\Install-EdFiTechnologySuite.ps1 -PlatformVersion 5.1
+    Attempts to run the install with the Ed-Fi ODS/API Platform for Suite 3,
+    version 5.1 (which is not formally supported at this time, but might work).
+
+    .EXAMPLE
+    PS> .\Install-EdFiTechnologySuite.ps1  -LMSToolkitVersion "1.1"
+    Use the version tag "1.1" instead of installing from the `main` branch of
+    the LMS Toolkit.
 #>
 param (
     # Major and minor software version number (x.y format) for the ODS/API platform
@@ -69,9 +83,9 @@ param (
 
     # Branch or tag to use when installing the LMS Toolkit.
     [string]
-    $LMSToolkitVeresion = "main",
+    $LMSToolkitVersion = "main",
 
-    # NuGet Feed for Ed-Fi pacakges
+    # NuGet Feed for Ed-Fi packages
     [string]
     $EdFiNuGetFeed = "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
 )
@@ -128,7 +142,7 @@ Install-ClientBulkLoader @params
 $params = @{
     DownloadPath = $InstallPath
     InstallDir = $InstallPath
-    BranchOrTag = $LMSToolkitVeresion
+    BranchOrTag = $LMSToolkitVersion
 }
 Install-LMSToolkit @params
 

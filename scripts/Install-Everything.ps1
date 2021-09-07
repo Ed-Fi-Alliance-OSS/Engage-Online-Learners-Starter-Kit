@@ -58,7 +58,7 @@ param (
     [string]
     $LMSToolkitVeresion = "main",
 
-    # NuGet Feed for Ed-Fi pacakges
+    # NuGet Feed for Ed-Fi packages
     [string]
     $EdFiNuGetFeed = "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
 )

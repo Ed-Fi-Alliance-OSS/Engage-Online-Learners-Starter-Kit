@@ -1,8 +1,37 @@
 # Building a VM on Localhost
 
-## Option 1: Manually create a virtual machine in Hyper-V, and follow the setup
+Two options are documented below: create the VM manually, or use Packer to
+automate the process.
 
-instructions in [Building a VM on AWS](building-a-vm-on-aws.md)
+## Option 1: Manual
+
+1. Create a virtual machine in Hyper-V. If you need a Windows 2019 server base
+   image, then we recommend the [Windows 2019 evaluation edition
+   iso](https://software-download.microsoft.com/download/pr/17763.737.190906-2324.rs5_release_svc_refresh_SERVER_EVAL_x64FRE_en-us_1.iso)
+2. Now that you have a running instance, you need to install all of the software
+   for it. In this repository, zip together the following directories and files
+   and then copy and paste the zip file into the RDP session. Suggested
+   location: `c:\Ed-Fi-Starter-Kit`.
+   * [data](../data)
+   * [scripts](../scripts)
+   * [vm-docs](../vm-docs)
+   * [StudentEngagementDashboard.pbix](../StudentEngagementDashboard.pbix)
+
+   ```powershell
+   $filesToZip = @(
+     "$PSScriptRoot/../data",
+     "$PSScriptRoot/../scripts",
+     "$PSScriptRoot/../vm-docs",
+     "$PSScriptRoot/../*.pbix"
+   )
+   Compress-Archive -Path $filesToZip -DestinationPath $DestinationFile -Force
+   ```
+
+3. Now you can open a PowerShell window. It will be in administrative mode
+   automatically, as required to run the script. Navigate to the directory with
+   the scripts and run `Install-Everything.ps1`. If everything has
+   been done right, it will run for a while and install everything needed.
+4. Review and address any errors.
 
 ## Option 2: Use Packer
 
@@ -14,6 +43,10 @@ When following the second option, the VM image will be created in the
 have the _image_ available, not an actual VM. In Hyper-V Manager, click on
 "Import Virtual Machine..." and navigate to the `dist` directory. Follow the
 prompts and you will have a running virtual machine.
+
+NOTE: you can edit the `starter-kit-variables.json` file to tune some of the
+settings. For example, if your computer has 16 GB of memory then you may need to
+lower the amount reserved for the virtual machine, which defaults to 8 GB.
 
 ## build-vm.ps1
 

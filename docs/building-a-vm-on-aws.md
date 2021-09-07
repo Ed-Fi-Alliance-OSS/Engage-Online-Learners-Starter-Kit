@@ -45,7 +45,7 @@ describes the processes for creating and maintaining such images.
    automatically, as required to run the script. Navigate to the directory with
    the scripts and run `Install-Everything.ps1`. If everything has
    been done right, it will run for a while and install everything needed.
-9. Fix any errors.
+9. Review and address any errors.
 
 ## Creating an Amazon Machine Image (AMI)
 

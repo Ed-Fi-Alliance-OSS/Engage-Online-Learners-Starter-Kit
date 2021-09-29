@@ -14,16 +14,14 @@ Toolkit](https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit):
 
 ## Getting Started
 
-More detail forthcoming. Requires that you have the [LMS
-Toolkit](https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit) and an ODS database
-from [Tech Suite 3, version
-5.2](https://techdocs.ed-fi.org/pages/viewpage.action?pageId=83798752). Other
-versions may work but have not been tested.
+For detailed information on this Starter Kit, please see [Ed-Fi Tech
+Docs](https://techdocs.ed-fi.org/x/1wjgBQ) (community account required).
 
-Requires Power BI Desktop or Power BI Pro.
+## Developer Notes
 
-To change the data source from within Power BI Desktop, click on `File > Options
-and Settings > Data source settings`.
+* [Building a VM on AWS](docs/building-a-vm-on-aws.md)
+* [Building a VM on Localhist](docs/building-a-vm-on-localhost.md)
+* [Sample Data Supporting Dashboard Development](docs/sample-data.md)
 
 ## Legal Information
 

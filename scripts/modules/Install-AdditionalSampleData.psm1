@@ -14,7 +14,7 @@ function Get-SchemaXSDFilesFor52 {
 
     Write-Host "Downloading Schema XSD files"
 
-    $xsdUrl = "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/v5.2/Application/EdFi.Ods.Standard/Artifacts/Schemas"
+    $xsdUrl = "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/v5.3/Application/EdFi.Ods.Standard/Artifacts/Schemas"
     $schemas = "./schemas"
     New-Item -Path $schemas -ItemType Directory -Force | Out-Null
 
@@ -110,7 +110,7 @@ function Invoke-BulkLoadInternetAccessData {
         $ClientSecret,
 
         [switch]
-        $UsingPlatformVersion52,
+        $UsingPlatformVersion53,
 
         [Parameter(Mandatory=$True)]
         [string]
@@ -134,7 +134,7 @@ function Invoke-BulkLoadInternetAccessData {
         "-w", (Resolve-Path -Path $bulkTemp)
     )
 
-    if ($UsingPlatformVersion52) {
+    if ($UsingPlatformVersion53) {
         # There is a known bug in 5.2 where the bulk load client cannot
         # download schema from the API itself. Workaround: have the schema
         # files available locally. This bug will be resolved in the next

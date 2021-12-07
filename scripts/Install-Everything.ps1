@@ -35,12 +35,12 @@ param (
     # Major and minor software version number (x.y format) for the ODS/API platform
     # components: Web API, SwaggerUI, Client Side Bulk Loader.
     [string]
-    $OdsPlatformVersion = "5.2",
+    $OdsPlatformVersion = "5.3",
 
     # Major and minor software software version number (x.y format) for the ODS
     # Admin App.
     [string]
-    $AdminAppVersion = "2.2",
+    $AdminAppVersion = "2.3",
 
     # Root directory for downloads and tool installation
     [string]

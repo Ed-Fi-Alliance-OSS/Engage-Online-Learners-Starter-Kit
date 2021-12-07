@@ -31,10 +31,10 @@
 
     Ed-Fi software:
 
-    * Ed-Fi ODS/API for Suite 3, version 5.2
-    * Ed-Fi Client Side Bulk Loader for Suite 3, version 5.2
-    * Ed-Fi SwaggerUI for Suite 3, version 5.2
-    * Ed-Fi ODS Admin App for Suite 3, version 2.2
+    * Ed-Fi ODS/API for Suite 3, version 5.3
+    * Ed-Fi Client Side Bulk Loader for Suite 3, version 5.3
+    * Ed-Fi SwaggerUI for Suite 3, version 5.3
+    * Ed-Fi ODS Admin App for Suite 3, version 2.3
     * Ed-Fi Analytics Middle Tier, latest development work (`main` branch)
     * Ed-Fi LMS Toolkit, latest development work (`main` branch).
 
@@ -62,12 +62,12 @@ param (
     # Major and minor software version number (x.y format) for the ODS/API platform
     # components: Web API, SwaggerUI, Client Side Bulk Loader.
     [string]
-    $PlatformVersion = "5.2",
+    $PlatformVersion = "5.3",
 
     # Major and minor software software version number (x.y format) for the ODS
     # Admin App.
     [string]
-    $AdminAppVersion = "2.2",
+    $AdminAppVersion = "2.3",
 
     # Root directory for downloads and tool installation
     [string]

@@ -1,7 +1,7 @@
 # Sample Data Supporting Dashboard Development
 
 The Power BI reports have been built on the Grand Bend (populated template) data
-set from the Ed-Fi ODS/API for Suite 3, version 5.2, with the following
+set from the Ed-Fi ODS/API for Suite 3, version 5.3, with the following
 modifications:
 
 * Used the time travel script to move dates forward to 2021-2022.

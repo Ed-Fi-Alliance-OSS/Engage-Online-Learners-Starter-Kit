@@ -40,7 +40,7 @@ param (
     $WebRoot = "c:/inetpub/Ed-Fi",
 
     [string]
-    $OdsPlatformVersion = "5.2"
+    $OdsPlatformVersion = "5.3"
 )
 $ErrorActionPreference = "Stop"
 
@@ -92,7 +92,7 @@ function Invoke-LoadSampleData {
         ClientKey = $key
         ClientSecret = $secret
         BulkLoadExe = $bulkLoadExe
-        UsingPlatformVersion52 = ($OdsPlatformVersion -eq "5.2")
+        UsingPlatformVersion53 = ($OdsPlatformVersion -eq "5.3")
     }
     Invoke-BulkLoadInternetAccessData @params
 }

@@ -37,10 +37,10 @@ Windows configuration
 
 Ed-Fi software:
 
-* Ed-Fi ODS/API for Suite 3, version 5.2
-* Ed-Fi Client Side Bulk Loader for Suite 3, version 5.2
-* Ed-Fi SwaggerUI for Suite 3, version 5.2
-* Ed-Fi ODS Admin App for Suite 3, version 2.2
+* Ed-Fi ODS/API for Suite 3, version 5.3
+* Ed-Fi Client Side Bulk Loader for Suite 3, version 5.3
+* Ed-Fi SwaggerUI for Suite 3, version 5.3
+* Ed-Fi ODS Admin App for Suite 3, version 2.3
 * Ed-Fi Analytics Middle Tier, latest development work (`main` branch)
 * Ed-Fi LMS Toolkit, latest development work (`main` branch).
 

@@ -64,7 +64,7 @@ if (-not ($SkipRunPacker)) {
     $packerConfig = (Resolve-Path "$PSScriptRoot/$PackerFile").Path
     $packerVariables = (Resolve-Path "$PSScriptRoot/$VariablesFile").Path
 
-    Invoke-Packer -ConfigPath $packerConfig -VariablesPath $packerVariables -VMSwitch $VMSwitch
+    Invoke-Packer -ConfigPath $packerConfig -VariablesPath $packerVariables -VMSwitch $VMSwitch -ISOUrl $ISOUrl
 }
 else {
     Write-Output "Skipping Packer Execution"

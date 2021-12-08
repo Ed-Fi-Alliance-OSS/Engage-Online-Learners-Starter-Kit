@@ -12,7 +12,11 @@ describes the processes for creating and maintaining such images.
 3. Choose the Windows 2019 Base image. Do not choose one of the images with SQL
    Server or other software. Do not choose one with "Core" in the name, as that
    will not have a desktop experience. Actual base image used for the first VM:
-   `amazon/Windows_Server-2019-English-Full-Base-2021.08.11`.
+   `amazon/Windows_Server-2019-English-Full-Base-2021.08.11`. Walk through each
+   step carefully so that you can customize the following:
+   * Instance size: `t2.xlarge` (`t2.large` will also work, but the install
+     process will be faster with the larger server)
+   * Additional storage: change from the default of 30 GiB to 50 GiB.
 4. Start up the instance.
 5. The password will be encrypted with a key that you choose while following the
    steps above. Now you ned to go to the list of all instances. Select the new

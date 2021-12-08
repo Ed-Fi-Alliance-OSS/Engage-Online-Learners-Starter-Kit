@@ -160,6 +160,10 @@ function Install-Python {
     $value = "$value;$additions"
     [Environment]::SetEnvironmentVariable("PATH", $value, "Machine")
 
+    # Sometimes Python doesn't trust itself (SSL certificate), which is weird.
+    # This command helps:
+    pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip setuptools
+
     Stop-Transcript
 }
 

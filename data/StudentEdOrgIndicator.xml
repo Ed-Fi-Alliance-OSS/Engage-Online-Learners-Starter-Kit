@@ -1,4 +1,4 @@
-<InterchangeStudentEnrollment xmlns="http://ed-fi.org/3.3.1-b" xmlns:ann="http://ed-fi.org/annotation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ed-fi.org/3.3.0-a ../../Schemas/Bulk/Interchange-StudentEnrollment.xsd">
+<InterchangeStudentEnrollment xmlns="http://ed-fi.org/3.3.1-b" xmlns:ann="http://ed-fi.org/annotation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ed-fi.org/3.3.1-b ../../Schemas/Bulk/Interchange-StudentEnrollment.xsd">
     <StudentEducationOrganizationAssociation>
         <StudentReference>
             <StudentIdentity>

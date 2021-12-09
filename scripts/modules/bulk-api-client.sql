@@ -4,7 +4,7 @@ insert into dbo.Vendors (
   VendorName
 )
 values (
-  'Test Vendor'
+  'Starter Kit Vendor'
 );
 
 insert into dbo.VendorNamespacePrefixes (
@@ -25,7 +25,7 @@ insert into dbo.Applications (
   ClaimSetName
 )
 select
-  'Client Bulk Loader',
+  'Starter Kit Bulk Loader',
   'uri://ed-fi.org',
   VendorId,
   'SIS Vendor'
@@ -43,7 +43,7 @@ select
 from
     dbo.Applications
 where
-    ApplicationName = 'Client Bulk Loader';
+    ApplicationName = 'Starter Kit Bulk Loader';
 
 
 insert into dbo.ApiClients (
@@ -59,7 +59,7 @@ insert into dbo.ApiClients (
 select
   '$(ClientKey)',
   '$(ClientSecret)',
-  'Client Bulk Loader',
+  'Starter Kit Bulk Loader',
   1,
   0,
   0,
@@ -84,8 +84,8 @@ inner join
     dbo.ApplicationEducationOrganizations on
         Applications.ApplicationId = ApplicationEducationOrganizations.Application_ApplicationId
 where
-    ApiClients.Name = 'Client Bulk Loader'
+    ApiClients.Name = 'Starter Kit Bulk Loader'
 and
-    Applications.ApplicationName = 'Client Bulk Loader';
+    Applications.ApplicationName = 'Starter Kit Bulk Loader';
 
 commit;

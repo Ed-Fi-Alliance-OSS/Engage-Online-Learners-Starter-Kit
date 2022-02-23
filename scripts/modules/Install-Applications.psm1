@@ -164,25 +164,7 @@ function Install-Python {
     # This command helps:
     pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip setuptools
 
-    Stop-Transcript
-}
-
-function Install-PipInitFile {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$True)]
-        [string]
-        $LogFile
-    )
-
-    Start-Transcript -Path $LogFile -Append
-
-    New-Item -Path "$env:APPDATA" -Name "pip" -ItemType "directory"
-    New-Item -Path (Join-Path "$env:APPDATA" "pip") -Name "pip.init" -ItemType "file" -Value "
-        [global]
-        trusted-host =  pypi.python.org
-                        pypi.org
-                        files.pythonhosted.org"
+    python -m pip config set global.trusted-host "pypi.org files.pythonhosted.org pypi.python.org"
 
     Stop-Transcript
 }

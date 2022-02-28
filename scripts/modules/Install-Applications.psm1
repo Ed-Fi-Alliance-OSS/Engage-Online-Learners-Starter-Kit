@@ -139,6 +139,33 @@ function Install-PowerBI {
     Stop-Transcript
 }
 
+function Get-PypiCert {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True)]
+        [string]
+        $CertPath,
+
+        [Parameter(Mandatory=$True)]
+        [string]
+        $LogFile
+    )
+    
+    Start-Transcript -Path $LogFile -Append
+
+    # Download pypi's certificate
+    $webRequest = [Net.WebRequest]::Create("https://pypi.org/")
+    try { $webRequest.GetResponse() } catch {}
+    $cert = $webRequest.ServicePoint.Certificate
+    $bytes = $cert.Export([Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+    set-content -value $bytes -encoding byte -path "$CertPath/pypi.cer"
+
+    # Use it for subsequent requests
+    $env:REQUESTS_CA_BUNDLE = "$CertPath/pypi.cer"
+    
+    Stop-Transcript
+}
+
 function Install-Python {
     [CmdletBinding()]
     param (
@@ -177,10 +204,26 @@ function Install-Poetry {
 
     Start-Transcript -Path $LogFile -Append
 
-    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/1.1/get-poetry.py -UseBasicParsing).Content | python -
-    &refreshenv
+    try {
+        # run regular Poetry install
+        # (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/1.1/get-poetry.py -UseBasicParsing).Content | python -
+        # &refreshenv
+        (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+        &refreshenv
+    }
+    catch {
+        # run the script
+        # (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/1.1/get-poetry.py -UseBasicParsing).Content | python -
+        # &refreshenv
+        (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+        &refreshenv
+    }
 
-    $env:PATH = "$env:PATH;$env:USERPROFILE\.poetry\bin"
+    # (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/1.1/get-poetry.py -UseBasicParsing).Content | python -
+    # &refreshenv
+
+    $env:PATH="$env:PATH;$env:APPDATA/python/Scripts"
+    #$env:PATH = "$env:PATH;$env:USERPROFILE\.poetry\bin"
 
     Stop-Transcript
 }

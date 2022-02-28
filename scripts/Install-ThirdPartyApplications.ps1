@@ -48,6 +48,7 @@ Install-DotNet -LogFile $applicationSetupLog
 Install-SQLServer -LogFile $applicationSetupLog
 Install-VisualStudioCode -LogFile $applicationSetupLog
 Install-GoogleChrome -LogFile $applicationSetupLog
+Get-PypiCert -CertPath "$PSScriptRoot/.." -LogFile $applicationSetupLog
 Install-Python -LogFile $applicationSetupLog
 Install-Poetry -LogFile $applicationSetupLog
 

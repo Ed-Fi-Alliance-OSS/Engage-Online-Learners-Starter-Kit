@@ -104,7 +104,7 @@ function Install-GoogleChrome {
     )
     Start-Transcript -Path $LogFile -Append
 
-    &choco install GoogleChrome @common_args --ignore-checksums
+    &choco install GoogleChrome @common_args
     Test-ExitCode
     &refreshenv
 
@@ -177,7 +177,8 @@ function Install-Poetry {
 
     Start-Transcript -Path $LogFile -Append
 
-    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/1.1/get-poetry.py -UseBasicParsing).Content | python -
+    #(Invoke-WebRequest -Uri  https://install.python-poetry.org -UseBasicParsing).Content | python -
+    pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --trusted-host pypi.python.org pip poetry
     &refreshenv
 
     $env:PATH = "$env:PATH;$env:USERPROFILE\.poetry\bin"

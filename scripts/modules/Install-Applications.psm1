@@ -104,7 +104,7 @@ function Install-GoogleChrome {
     )
     Start-Transcript -Path $LogFile -Append
 
-    &choco install GoogleChrome @common_args
+    &choco install GoogleChrome @common_args --ignore-checksums
     Test-ExitCode
     &refreshenv
 

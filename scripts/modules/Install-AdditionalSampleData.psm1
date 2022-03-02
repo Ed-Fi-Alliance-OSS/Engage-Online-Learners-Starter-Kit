@@ -110,7 +110,7 @@ function Invoke-BulkLoadInternetAccessData {
         $ClientSecret,
 
         [switch]
-        $UsingPlatformVersion52OrGreater,
+        $UsingPlatformVersion52,
 
         [Parameter(Mandatory=$True)]
         [string]
@@ -134,7 +134,7 @@ function Invoke-BulkLoadInternetAccessData {
         "-w", (Resolve-Path -Path $bulkTemp)
     )
 
-    if ($UsingPlatformVersion52OrGreater) {
+    if ($UsingPlatformVersion52) {
         # There is a known bug in 5.2 where the bulk load client cannot
         # download schema from the API itself. Workaround: have the schema
         # files available locally. This bug will be resolved in the next

@@ -92,7 +92,7 @@ function Invoke-LoadSampleData {
         ClientKey = $key
         ClientSecret = $secret
         BulkLoadExe = $bulkLoadExe
-        UsingPlatformVersion52OrGreater = ($OdsPlatformVersion -eq "5.2")
+        UsingPlatformVersion52 = ($OdsPlatformVersion -eq "5.2")
     }
     Invoke-BulkLoadInternetAccessData @params
 }

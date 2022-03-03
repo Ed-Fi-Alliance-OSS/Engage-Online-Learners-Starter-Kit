@@ -1,6 +1,7 @@
 # Cache objects
 packer_cache/
 .tools/
+bulk-temp/
 
 # All log files
 *.log

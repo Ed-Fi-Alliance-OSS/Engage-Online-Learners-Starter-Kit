@@ -2,136 +2,47 @@
 # Licensed to the Ed-Fi Alliance under one or more agreements.
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
+#Requires -version 5
+param(
+    [parameter(Position=0,Mandatory=$false)][Hashtable]$configuration
+)
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-
-$NuGetInstaller = "https://dist.nuget.org/win-x86-commandline/v5.3.1/nuget.exe"
-
-function Install-NugetCli {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$True)]
-        [string]
-        $ToolsPath
+function Set-ApiUrl {
+    Param(
+        [String] $expectedWebApiBaseUri
     )
-
-    if (-not $(Test-Path $ToolsPath)) {
-        mkdir $ToolsPath | Out-Null
+    if ([string]::IsNullOrEmpty($configuration.adminAppConfig.odsApi.apiUrl)) {
+        $configuration.adminAppConfig.odsApi.apiUrl = $expectedWebApiBaseUri
     }
 
-    $NugetExe = "$ToolsPath/nuget.exe"
-
-    if (-not $(Test-Path $NugetExe)) {
-        Write-Host "Downloading nuget.exe official distribution from " $NuGetInstaller
-        Invoke-RestMethod -Uri $NuGetInstaller -OutFile $NugetExe
-    }
-    else {
-        $info = Get-Command $NugetExe
-        Write-Host "Found nuget exe in: $toolsPath"
-
-        if ("5.3.1.0" -ne $info.Version.ToString()) {
-            Write-Host "Updating nuget.exe official distribution from " $NuGetInstaller
-            Invoke-RestMethod -Uri $NuGetInstaller -OutFile $NugetExe
-        }
+    if ([string]::IsNullOrEmpty($formattedConfig.swaggerUIConfig.swaggerAppSettings.apiMetadataUrl)) {
+        $configuration.swaggerUIConfig.swaggerAppSettings.apiMetadataUrl = "$expectedWebApiBaseUri/metadata/"
     }
 
-    return $NugetExe
+    if ([string]::IsNullOrEmpty($formattedConfig.swaggerUIConfig.swaggerAppSettings.apiVersionUrl)) {
+        $configuration.swaggerUIConfig.swaggerAppSettings.apiVersionUrl = $expectedWebApiBaseUri
+    }
 }
-
-function Get-NuGetPackageVersion {
-    [CmdletBinding()]
+function Test-ApiUrl {
     param (
-        [Parameter(Mandatory=$True)]
-        [string]
-        $EdFiFeed,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $NuGetExe,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $PackageName,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $PackageVersion
+        [String] $apiUrl
     )
-    Write-Host "Looking latest patch of $PackageName version $PackageVersion"
+    if ([String]::IsNullOrEmpty($apiUrl)) {
+        Write-Error "No API Url configured. Edit configuration.json and run install again."
+        Exit -1
+    }
+}
+function Install-SqlServerModule {
 
-    # If version is provided with just Major.Minor, then lookup all
-    # available versions and find the latest patch for that release
-    if ($PackageVersion -match "^\d\.\d$") {
-        $params = @(
-            "list",
-            "-Source", $EdFiFeed,
-            "-AllVersions",
-            $PackageName
-        )
-
-        Write-Host $NugetExe @params
-        $response = &$NuGetExe @params
-
-        $response -Split [Environment]::NewLine | ForEach-Object {
-            $v = ($_ -Split " ")[1]
-
-            if ($v -match "$PackageVersion\.\d") {
-                $PackageVersion = $v
-            }
-        }
+    if (-not (Get-Module -ListAvailable -Name SqlServer -ErrorAction SilentlyContinue)) {
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | out-host
+        Install-Module SqlServer -Force -AllowClobber -Confirm:$false | out-host
     }
 
-    return $PackageVersion
+    Import-Module SqlServer
 }
-
-function Install-NuGetPackage {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$True)]
-        [string]
-        $ToolsPath,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $NuGetExe,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $EdFiFeed,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $PackageName,
-
-        [Parameter(Mandatory=$True)]
-        [string]
-        $PackageVersion
-    )
-
-    $params = @{
-        NuGetExe = $NuGetExe
-        EdFiFeed = $EdFiFeed
-        PackageName = $PackageName
-        PackageVersion = $PackageVersion
-    }
-    $PackageVersion = Get-NuGetPackageVersion @params
-
-    $params = @(
-        "install",
-        "-Source", $EdFiFeed,
-        "-OutputDirectory", $ToolsPath,
-        "-Version", $PackageVersion,
-        $PackageName
-    )
-
-    Write-Host "Installing package $PackageName version $PackageVersion"
-    &$NugetExe @params | Out-Host
-
-    Test-ExitCode
-    return "$ToolsPath/$PackageName.$PackageVersion"
-}
-
 function Invoke-SqlCmdOnODS {
     [CmdletBinding()]
     param (
@@ -153,12 +64,12 @@ function Invoke-SqlCmdOnODS {
         $DatabaseName = "EdFi_Ods"
     )
 
-    $cmd = "sqlcmd -S $DatabaseServer -E -d $DatabaseName -b -i $FileName"
-
-    if ($DatabaseUserName -ne ""){
-        $cmd += " -U $DatabaseUserName -P $DatabasePassword"
+    $cmd = if ($DatabaseUserName -ne ""){
+        "sqlcmd -S $DatabaseServer -U $DatabaseUserName -P $DatabasePassword -d $DatabaseName -b -i $FileName"
     }
-
+    else{
+        "sqlcmd -S $DatabaseServer -E -d $DatabaseName -b -i $FileName"
+    }
     Invoke-Expression $cmd
     Test-ExitCode
 }
@@ -179,7 +90,6 @@ function Test-ExitCode {
 
         throw @"
 The last task failed with exit code $LASTEXITCODE
-
 $(Get-PSCallStack)
 "@
     }

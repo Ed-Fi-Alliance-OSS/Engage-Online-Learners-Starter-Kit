@@ -25,30 +25,23 @@
 param (
     # Temporary directory for downloaded components.
     [string]
-    $ToolsPath = "$PSScriptRoot/.tools",
-
-    # The directory in which the Console Bulk Loader was downloaded
-    [string]
-    $ConsoleBulkLoadDirectory = "C:/Ed-Fi/Bulk-Load-Client",
-
-    # The directory in which the LMS Toolkit was downloaded and installed.
-    [string]
-    $LMSToolkitDirectory = "c:/ed-fi/LMS-Toolkit-main",
-
-    # Root directory for web applications.
-    [string]
-    $WebRoot = "c:/inetpub/Ed-Fi",
-
-    [string]
-    $OdsPlatformVersion = "5.3"
+    $ToolsPath = "$PSScriptRoot/.tools"
 )
 $ErrorActionPreference = "Stop"
 
-# Import all needed modules
-Import-Module -Name "$PSScriptRoot/modules/Tool-Helpers.psm1" -Force
-Import-Module -Name "$PSScriptRoot/modules/Install-LMSToolkit.psm1" -Force
-Import-Module -Name "$PSScriptRoot/modules/Install-AdditionalSampleData.psm1" -Force
+$configPath = "$PSScriptRoot\configuration.json"
+Import-Module -Force "$PSScriptRoot\confighelper.psm1"
+$configuration = Format-ConfigurationFileToHashTable $configPath
 
+# Import all needed modules
+Import-Module -Name "$PSScriptRoot/modules/Tool-Helpers.psm1" -Force -ArgumentList $configuration
+Import-Module -Name "$PSScriptRoot/modules/Install-LMSToolkit.psm1" -Force -ArgumentList $configuration
+Import-Module -Name "$PSScriptRoot/modules/Install-AdditionalSampleData.psm1" -Force -ArgumentList $configuration
+$OdsPlatformVersion = $configuration.odsPlatformVersion
+$WebRoot = $configuration.lmsToolkitConfig.webRootFolder
+# The directory in which the Console Bulk Loader was downloaded
+$ConsoleBulkLoadDirectory = "$($configuration.bulkLoadClientConfig.installationDirectory)"
+$LMSToolkitDirectory = Join-Path "$($configuration.lmsToolkitConfig.installationDirectory)" "LMS-Toolkit-$($configuration.lmsToolkitConfig.version)"
 function Install-LandingPage {
     Write-Host "Installing the landing page"
 
@@ -84,13 +77,9 @@ function Set-WallPaper {
 function Invoke-LoadSampleData {
     Install-LMSSampleData -LmsDirectory $LMSToolkitDirectory
 
-    $key = "dfghjkl34567"
-    $secret = "4eryftgjh-pok%^K`$E%RTYG"
-    $bulkLoadExe = "$ConsoleBulkLoadDirectory/EdFi.BulkLoadClient.Console.exe"
+    $bulkLoadExe = Join-Path "$($ConsoleBulkLoadDirectory)" "EdFi.BulkLoadClient.Console.exe"
 
     $params = @{
-        ClientKey = $key
-        ClientSecret = $secret
         BulkLoadExe = $bulkLoadExe
         UsingPlatformVersion52 = ($OdsPlatformVersion -eq "5.2")
     }

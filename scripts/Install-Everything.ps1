@@ -30,40 +30,8 @@
 param (
     # Temporary directory for downloaded components.
     [string]
-    $ToolsPath = "$PSScriptRoot/.tools",
-
-    # Major and minor software version number (x.y format) for the ODS/API platform
-    # components: Web API, SwaggerUI, Client Side Bulk Loader.
-    [string]
-    $OdsPlatformVersion = "5.3",
-
-    # Major and minor software software version number (x.y format) for the ODS
-    # Admin App.
-    [string]
-    $AdminAppVersion = "2.3",
-
-    # Root directory for downloads and tool installation
-    [string]
-    $InstallPath = "c:/Ed-Fi",
-
-    # Root directory for web application installs.
-    [string]
-    $WebRoot = "c:/inetpub/Ed-Fi",
-
-    # Branch or tag to use when installing the Analytics Middle Tier.
-    [string]
-    $AnalyticsMiddleTierVersion = "main",
-
-    # Branch or tag to use when installing the LMS Toolkit.
-    [string]
-    $LMSToolkitVeresion = "main",
-
-    # NuGet Feed for Ed-Fi packages
-    [string]
-    $EdFiNuGetFeed = "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
+    $ToolsPath = "$PSScriptRoot/.tools"
 )
-
-
 $global:ErrorActionPreference = "Stop"
 $global:ProgressPreference = "SilentlyContinue"
 
@@ -74,12 +42,7 @@ Set-ExecutionPolicy bypass -Scope CurrentUser -Force;
 
 ./Install-ThirdPartyApplications.ps1 -ToolsPath $ToolsPath
 
-./Install-EdFiTechnologySuite.ps1 -PlatformVersion $OdsPlatformVersion `
-    -AdminAppVersion $AdminAppVersion `
-    -InstallPath $InstallPath `
-    -WebRoot $WebRoot `
-    -AnalyticsMiddleTierVersion $AnalyticsMiddleTierVersion `
-    -EdFiNuGetFeed $EdFiNuGetFeed
+./Install-EdFiTechnologySuite.ps1
 
 # Restart IIS, which also requires stopping the Windows Activation Service.
 # This step is necessary in many cases for IIS to recognize and use the newly
@@ -88,8 +51,5 @@ Stop-Service -name was -Force -Confirm:$False
 Start-Service -name w3svc
 
 ./Install-StarterKit.ps1 `
-    -ToolsPath  $ToolsPath `
-    -ConsoleBulkLoadDirectory "$InstallPath/Bulk-Load-Client" `
-    -LMSToolkitDirectory "$InstallPath/LMS-Toolkit-main" `
-    -WebRoot $WebRoot `
-    -OdsPlatformVersion $OdsPlatformVersion
+    -ToolsPath  $ToolsPath
+

@@ -2,9 +2,13 @@
 # Licensed to the Ed-Fi Alliance under one or more agreements.
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
+#Requires -version 5
+param(
+    [parameter(Position=0,Mandatory=$false)][Hashtable]$configuration
+)
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
-
+Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force -ArgumentList $configuration
 function New-EnvFile {
     [CmdletBinding()]
     param (
@@ -27,7 +31,6 @@ function Install-LMSSampleData {
         [string]
         $LmsDirectory
     )
-
 
     try {
         Push-Location -Path "$LmsDirectory/src/lms-ds-loader"
@@ -67,36 +70,31 @@ function Install-LMSToolkit {
 
         [Parameter(Mandatory=$True)]
         [string]
-        $InstallDir,
-
-        # The branch or tag to download from GitHub
-        [string]
-        $BranchOrTag = "main",
-
-        [string]
-        $DatabaseServer = "localhost",
-
-        # Leave blank to use integrated security
-        [string]
-        $DatabaseUserName = "",
-
-        [string]
-        $DatabasePassword = "",
-
-        [string]
-        $DatabaseName = "EdFi_Ods"
+        $InstallDir
     )
+    
+    $BranchOrTag = "$($configuration.lmsToolkitConfig.version)"
 
+    $DatabaseServer = "$($configuration.databasesConfig.databaseServer)"
+
+    $UseIntegratedSecurity = "$($configuration.databasesConfig.installCredentials.useIntegratedSecurity)"
+    
+    $DatabaseUserName = "$($configuration.databasesConfig.installCredentials.databaseUser)"
+
+    $DatabasePassword = "$($configuration.databasesConfig.installCredentials.databasePassword)"
+
+    $DatabaseName = "$($configuration.databasesConfig.odsDatabaseName)"
+    
     # Download the LMS Toolkit source
     $lmsZip = "$DownloadPath/lms-toolkit.zip"
     try {
         # ... first assume that a branch name was given
-        $url = "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit/archive/refs/heads/$BranchOrTag.zip"
+        $url = "$($configuration.lmsToolkitConfig.packageURL)/archive/refs/heads/$BranchOrTag.zip"
         Invoke-RestMethod -Uri $url -OutFile $lmsZip
     }
     catch {
         # ... now try treating as a tag instead, and if it fails, let it bubble up
-        $url = "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit/archive/refs/tags/$BranchOrTag.zip"
+        $url = "$($configuration.lmsToolkitConfig.packageURL)/archive/refs/tags/$BranchOrTag.zip"
         Invoke-RestMethod -Uri $url -OutFile $lmsZip
     }
 
@@ -131,24 +129,40 @@ OUTPUT_DIRECTORY=$InstallDir/lms-data/csv
 SYNC_DATABASE_DIRECTORY=$InstallDir/lms-data/schoology
 FEATURE=activities, attendance, assignments, grades
 "@ | New-EnvFile -Directory  "$lmsDirectory/src/schoology-extractor"
-
+if ("$($DatabaseUserName)"){
     @"
 CSV_PATH=$InstallDir/lms-data/csv
 DB_SERVER=$DatabaseServer
 DB_NAME=$DatabaseName
-USE_INTEGRATED_SECURITY=$(if ($DatabaseUser -eq "") { "True" } else { "False" })
-DB_USERNAME=$DatabaseUserName
-DB_PASSWORD=$DatabasePassword
+DB_USERNAME="$($DatabaseUserName)"
+DB_PASSWORD="$($DatabasePassword)"
 "@ | New-EnvFile -Directory "$lmsDirectory/src/lms-ds-loader"
 
     @"
 DB_SERVER=$DatabaseServer
 DB_NAME=$DatabaseName
-USE_INTEGRATED_SECURITY=$(if ($DatabaseUser -eq "") { "True" } else { "False" })
-DB_USERNAME=$DatabaseUserName
-DB_PASSWORD=$DatabasePassword
+DB_USERNAME="$($DatabaseUserName)"
+DB_PASSWORD="$($DatabasePassword)"
 EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
 "@ | New-EnvFile -Directory "$lmsDirectory/src/lms-harmonizer"
+
+}
+else{
+@"
+CSV_PATH=$InstallDir/lms-data/csv
+DB_SERVER=$DatabaseServer
+DB_NAME=$DatabaseName
+USE_INTEGRATED_SECURITY="True"
+"@ | New-EnvFile -Directory "$lmsDirectory/src/lms-ds-loader"
+
+    @"
+DB_SERVER=$DatabaseServer
+DB_NAME=$DatabaseName
+USE_INTEGRATED_SECURITY="True"
+EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
+"@ | New-EnvFile -Directory "$lmsDirectory/src/lms-harmonizer"
+}
+    
 
     # Run the LMS DS Loader to create the `lms` schema tables
     try {
@@ -171,6 +185,13 @@ EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
     # For now, we do not have a proper install of the LMSX extension, but
     # the tables for it are necesary for the next steps. Manually install them.
     try {
+        $databaseConfig= @{
+            DatabaseServer = "$($DatabaseServer)"
+            DatabaseUserName = "$($DatabaseUserName)"
+            DatabasePassword = "$($DatabasePassword)"
+            DatabaseName = "$($DatabaseName)"
+        }
+        
         Push-Location -Path "$lmsDirectory/extension/EdFi.Ods.Extensions.LMSX/Artifacts/MSSQL/Structure/ODS"
         @(
             "0010-EXTENSION-LMSX-Schemas.sql",
@@ -179,7 +200,7 @@ EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
             "0040-EXTENSION-LMSX-IdColumnUniqueIndexes.sql",
             "0050-EXTENSION-LMSX-ExtendedProperties.sql"
         ) | ForEach-Object {
-            Invoke-SqlCmdOnODS $_
+            Invoke-SqlCmdOnODS $_ @databaseConfig
         }
     }
     catch {throw}
@@ -211,11 +232,11 @@ EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
 
         $cmd = "poetry run python ./LoadDescriptors.py --server $DatabaseServer --dbname $DatabaseName"
 
-        if ($DatabaseUserName -eq "") {
-            $cmd += " --useintegratedsecurity True"
+        if ($DatabaseUserName) {
+            $cmd += " --username $DatabaseUserName --password $DatabasePassword"
         }
         else {
-            $cmd += " --username $DatabaseUserName --password $DatabasePassword"
+            $cmd += " --useintegratedsecurity True"
         }
 
         Invoke-Expression $cmd

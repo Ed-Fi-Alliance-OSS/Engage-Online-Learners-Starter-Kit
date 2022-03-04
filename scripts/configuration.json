@@ -1,67 +1,149 @@
 {
-    "ConnectionStrings": {
-      "EdFi_Ods": "server=(local);trusted_connection=True;database=EdFi_{0};Application Name=EdFi.Ods.WebApi",
-      "EdFi_Security": "server=(local);trusted_connection=True;database=EdFi_Security;persist security info=True;Application Name=EdFi.Ods.WebApi",
-      "EdFi_Admin": "server=(local);trusted_connection=True;database=EdFi_Admin;Application Name=EdFi.Ods.WebApi",
-      "EdFi_Master": "server=(local);trusted_connection=True;database=master;Application Name=EdFi.Ods.WebApi"
-   },
-    "ApiSettings": {
-      "Mode": "SharedInstance",
-      "Engine": "SQLServer",
-      "OdsTokens": [],
-      "Features": [
-        {
-          "Name": "OpenApiMetadata",
-          "IsEnabled": true
-        },
-        {
-          "Name": "AggregateDependencies",
-          "IsEnabled": true
-        },
-        {
-          "Name": "TokenInfo",
-          "IsEnabled": true
-        },
-        {
-          "Name": "Extensions",
-          "IsEnabled": true
-        },
-        {
-          "Name": "Composites",
-          "IsEnabled": true
-        },
-        {
-          "Name": "Profiles",
-          "IsEnabled": false
-        },
-        {
-          "Name": "ChangeQueries",
-          "IsEnabled": true
-        },
-        {
-          "Name": "IdentityManagement",
-          "IsEnabled": false
-        },
-        {
-          "Name": "OwnershipBasedAuthorization",
-          "IsEnabled": false
-        },
-        {
-          "Name": "UniqueIdValidation",
-          "IsEnabled": false
-        }
-      ],
-      "ExcludedExtensions": [],
-      "OdsDatabaseTemplateName": "populated",
-      "DropDatabases": true,
-      "MinimalTemplateSuffix": "Ods_Minimal_Template",
-      "_PopulatedTemplateSuffix": "Ods_Populated_Template",
-      "PopulatedTemplateSuffix": "Ods",
-      "MinimalTemplateScript": "EdFiMinimalTemplate",
-      "_PopulatedTemplateScript": "sampledata"
+  "downloadDirectory": "C:\\temp",
+  "installDirectory": "C:\\Ed-Fi",
+  "EdFiNuGetFeed": "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json",
+  "webSiteName": "Ed-Fi",
+  "installDatabases": true,
+  "odsPlatformVersion": "5.3",
+  "databases": {
+      "applicationCredentials": {
+          "databaseUser": "",
+          "databasePassword": "",
+          "useIntegratedSecurity": true
+      },
+      "installCredentials": {
+          "databaseUser": "",
+          "databasePassword": "",
+          "useIntegratedSecurity": true
+      },
+      "engine": "SQLServer",
+      "databaseServer": "localhost",
+      "databasePort": "",
+      "adminDatabaseName": "EdFi_Admin",
+      "odsDatabaseName": "EdFi_Ods",
+      "securityDatabaseName": "EdFi_Security",
+      "useTemplates": false,
+      "odsTemplate": "populated",
+      "noDuration": false,
+      "dropDatabases": true,
+      "apiMode": "sharedinstance",
+      "odsTokens": [],
+      "useIntegratedSecurity": true,
+      "minimalTemplateScript": "Ods_Minimal_Template",
+      "populatedTemplateScript": "EdFiMinimalTemplate",
+      "addAdminUser": false,
+      "dbAdminUser": "edfi",
+      "dbAdminUserPassword": "edfi",
+      "packageDetails": {
+          "packageName": "EdFi.Suite3.RestApi.Databases",
+          "version": "5.3"
+      }
+  },
+
+  "installPrerequisites": true,
+
+  "installEdFiDatabases": true,
+
+  "installAdminApp": true,
+  "uninstallAdminApp": false,
+  "adminApp": {
+      "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\AdminApp",
+      "appStartUp": "OnPrem",
+      "odsApi": {
+          "apiUrl": ""
+      },
+      "packageDetails": {
+        "packageName": "EdFi.Suite3.ODS.AdminApp.Web",
+        "version": "2.3"
+      },
+      "packageInstallerDetails": {
+          "packageName": "EdFi.Suite3.Installer.AdminApp",
+          "version": "2.3"
+      }
+  },
+
+  "installWebApi": true,
+  "uninstallWebApi": false,
+  "webapi": {
+      "webApplicationName": "WebApi",
+      "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\WebApi",
+      "webApiAppSettings": {
+          "excludedExtensionSources": "Sample,Homograph",
+          "extensions": "true",
+          "profiles": "false",
+          "openApiMetadata": "true",
+          "aggregateDependencies": "true",
+          "tokenInfo": "true",
+          "composites": "true",
+          "changeQueries": "true",
+          "identityManagement": "false",
+          "ownershipBasedAuthorization": "false",
+          "uniqueIdValidation": "false"
+      },
+      "packageDetails": {
+          "packageName": "EdFi.Suite3.Ods.WebApi",
+          "version": "5.3"
+      },
+      "packageInstallerDetails": {
+          "packageName": "EdFi.Suite3.Installer.WebApi",
+          "version": "5.3"
+      }
+  },
+
+  "installSwaggerUI": true,
+  "uninstallSwaggerUI": false,
+  "swaggerui": {
+      "WebApplicationName": "SwaggerUI",
+      "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\SwaggerUI",
+      "swaggerAppSettings": {
+          "apiMetadataUrl": "",
+          "apiVersionUrl": ""
+      },
+      "packageDetails": {
+          "packageName": "EdFi.Suite3.Ods.SwaggerUI",
+          "version": "5.3"
+      },
+      "packageInstallerDetails": {
+          "packageName": "EdFi.Suite3.Installer.SwaggerUI",
+          "version": "5.3"
+      }
+  },
+  "installAMT": true,
+  "uninstallAMT": false,
+  "AMT": {
+      "amtDownloadPath": "C:\\temp\\downloads",
+      "amtInstallerPath": "C:\\temp\\tools",
+      "options": "EWS RLS Indexes Engage",
+      "install_selfContained": "true",
+      "selfContainedOS": "win10.x64",
+      "packageDetails": {
+          "packageName": "EdFi.AnalyticsMiddleTier",
+          "packageURL": "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier",
+          "version": "2.8.0"
+      }
+  },
+  "installBulkLoadClient": true,
+  "bulkLoadClientConfig": {
+    "installationDirectory": "C:\\Ed-Fi\\Bulk-Load-Client",
+    "packageDetails": {
+        "packageName": "EdFi.Suite3.BulkLoadClient.Console",
+        "version": "5.3"
     },
-    "Plugin": {
-      "Folder": "c:/plugin",
-      "Scripts": []
+    "packageODSSchema52Details":{
+        "packageURL": "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/",
+        "version": "5.2"
     }
+  },
+  "installLMSToolkit": true,
+  "lmsToolkit": {
+    "installationDirectory": "C:\\Ed-Fi\\",
+     "webRootFolder": "c:\\inetpub\\Ed-Fi",
+     "packageURL": "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit",
+     "version": "main",
+     "pathToWorkingDir": "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit",
+     "sampleData": {
+          "key": "dfghjkl34567",
+          "secret": "4eryftgjh-pok%^K`$E%RTYG"
+      }
   }
+}

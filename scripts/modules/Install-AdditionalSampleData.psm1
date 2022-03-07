@@ -3,23 +3,23 @@
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
 #Requires -version 5
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
 
 $ErrorActionPreference = "Stop"
-Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force -ArgumentList $configuration
+Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force
 
 function Get-SchemaXSDFilesFor52 {
     param (
         [Parameter(Mandatory=$True)]
         [string]
-        $SchemaDirectory
+        $SchemaDirectory,
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $bulkLoadClientConfig
     )
 
     Write-Host "Downloading Schema XSD files"
-    $version = $configuration.bulkLoadClientConfig.packageODSSchema52Details.version
-    $xsdUrl = "$($configuration.bulkLoadClientConfig.packageODSSchema52Details.packageUrl)/v$($version)/Application/EdFi.Ods.Standard/Artifacts/Schemas"
+    $version = $bulkLoadClientConfig.packageODSSchema52Details.version
+    $xsdUrl = "$($bulkLoadClientConfig.packageODSSchema52Details.packageUrl)/v$($version)/Application/EdFi.Ods.Standard/Artifacts/Schemas"
     $schemas = "./schemas"
     New-Item -Path $schemas -ItemType Directory -Force | Out-Null
 
@@ -55,37 +55,43 @@ function Get-SchemaXSDFilesFor52 {
 
 function New-BulkClientKeyAndSecret {
     param (
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $lmsToolkitConfig,
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $databasesConfig
     )
 
     Write-Host "Creating temporary credentials for the bulk upload process"
 
     $file = (Resolve-Path -Path "$PSScriptRoot/bulk-api-client.sql")
     $params = 
-    if($configuration.databasesConfig.installCredentials.useIntegratedSecurity){
+    if($databasesConfig.installCredentials.useIntegratedSecurity){
         @{
-            Database = "$($configuration.databasesConfig.adminDatabaseName)"
-            Hostname = "$($configuration.databasesConfig.databaseServer)"
-            ServerInstance = "$($configuration.databasesConfig.databaseServer)"
+            Database = "$($databasesConfig.adminDatabaseName)"
+            Hostname = "$($databasesConfig.databaseServer)"
+            ServerInstance = "$($databasesConfig.databaseServer)"
             InputFile = $file
             OutputSqlErrors = $True
             Variable = @(
-                "ClientKey=$($configuration.lmsToolkitConfig.sampleData.key)",
-                "ClientSecret=$($configuration.lmsToolkitConfig.sampleData.secret)"
+                "ClientKey=$($lmsToolkitConfig.sampleData.key)",
+                "ClientSecret=$($lmsToolkitConfig.sampleData.secret)"
             )
         } 
     }
     else{
         @{
-            Database = "$($configuration.databasesConfig.adminDatabaseName)"
-            Hostname = "$($configuration.databasesConfig.databaseServer)"
-            ServerInstance = "$($configuration.databasesConfig.databaseServer)"
-            UserName    = "$($configuration.databasesConfig.installCredentials.databaseUser)"
-            Password    = "$($configuration.databasesConfig.installCredentials.databasePassword)"
+            Database = "$($databasesConfig.adminDatabaseName)"
+            Hostname = "$($databasesConfig.databaseServer)"
+            ServerInstance = "$($databasesConfig.databaseServer)"
+            UserName    = "$($databasesConfig.installCredentials.databaseUser)"
+            Password    = "$($databasesConfig.installCredentials.databasePassword)"
             InputFile = $file
             OutputSqlErrors = $True
             Variable = @(
-                "ClientKey=$($configuration.lmsToolkitConfig.sampleData.key)",
-                "ClientSecret=$($configuration.lmsToolkitConfig.sampleData.secret)"
+                "ClientKey=$($lmsToolkitConfig.sampleData.key)",
+                "ClientSecret=$($lmsToolkitConfig.sampleData.secret)"
             )
         }
     }
@@ -95,38 +101,44 @@ function New-BulkClientKeyAndSecret {
 }
 
 function Remove-BulkClientKeyAndSecret {
-    param (        
+    param (   
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $lmsToolkitConfig,
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $databasesConfig   
     )
 
     Write-Host "Removing temporary bulk load credentials"
 
     $file = (Resolve-Path -Path "$PSScriptRoot/remove-bulk-api-client.sql")
     $params = 
-    if($configuration.databasesConfig.installCredentials.useIntegratedSecurity){
+    if($databasesConfig.installCredentials.useIntegratedSecurity){
         @{
-            Database = "$($configuration.databasesConfig.adminDatabaseName)"
-            HostName = "$($configuration.databasesConfig.databaseServer)"
-            ServerInstance = "$($configuration.databasesConfig.databaseServer)"
+            Database = "$($databasesConfig.adminDatabaseName)"
+            HostName = "$($databasesConfig.databaseServer)"
+            ServerInstance = "$($databasesConfig.databaseServer)"
             InputFile = $file
             OutputSqlErrors = $True
             Variable = @(
-                "ClientKey=$($configuration.lmsToolkitConfig.sampleData.key)",
-                "ClientSecret=$($configuration.lmsToolkitConfig.sampleData.secret)"
+                "ClientKey=$($lmsToolkitConfig.sampleData.key)",
+                "ClientSecret=$($lmsToolkitConfig.sampleData.secret)"
             )
         } 
     }
     else{
         @{
-            Database = "$($configuration.databasesConfig.adminDatabaseName)"
-            HostName = "$($configuration.databasesConfig.databaseServer)"
-            ServerInstance = "$($configuration.databasesConfig.databaseServer)"
-            UserName    = "$($configuration.databasesConfig.installCredentials.databaseUser)"
-            Password    = "$($configuration.databasesConfig.installCredentials.databasePassword)"
+            Database = "$($databasesConfig.adminDatabaseName)"
+            HostName = "$($databasesConfig.databaseServer)"
+            ServerInstance = "$($databasesConfig.databaseServer)"
+            UserName    = "$($databasesConfig.installCredentials.databaseUser)"
+            Password    = "$($databasesConfig.installCredentials.databasePassword)"
             InputFile = $file
             OutputSqlErrors = $True
             Variable = @(
-                "ClientKey=$($configuration.lmsToolkitConfig.sampleData.key)",
-                "ClientSecret=$($configuration.lmsToolkitConfig.sampleData.secret)"
+                "ClientKey=$($lmsToolkitConfig.sampleData.key)",
+                "ClientSecret=$($lmsToolkitConfig.sampleData.secret)"
             )
         }
     }
@@ -136,24 +148,30 @@ function Remove-BulkClientKeyAndSecret {
 
 function Invoke-BulkLoadInternetAccessData {
     param (
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $lmsToolkitConfig,
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $databasesConfig,
+        [Parameter(Mandatory=$True)]
         [switch]
         $UsingPlatformVersion52,
-
         [Parameter(Mandatory=$True)]
         [string]
         $BulkLoadExe,
-
+        [Parameter(Mandatory=$True)]
         [string]
-        $ApiUrl = "https://$(hostname)/$($configuration.webApiConfig.webApplicationName)"
+        $ApiUrl        
     )
-    $ClientKey = "$($configuration.lmsToolkitConfig.sampleData.key)"
-    $ClientSecret = "$($configuration.lmsToolkitConfig.sampleData.secret)"
+    $ClientKey = "$($lmsToolkitConfig.sampleData.key)"
+    $ClientSecret = "$($lmsToolkitConfig.sampleData.secret)"
     Write-Host "Preparing to upload additional sample data..."
 
     $bulkTemp = "$PSScriptRoot/bulk-temp"
     New-Item -Path $bulkTemp -ItemType Directory -Force | Out-Null
 
-    New-BulkClientKeyAndSecret -ClientKey $ClientKey -ClientSecret $ClientSecret
+    New-BulkClientKeyAndSecret -lmsToolkitConfig $lmsToolkitConfig -databasesConfig $databasesConfig
 
     $bulkParams = @(
         "-b", $ApiUrl,
@@ -181,7 +199,8 @@ function Invoke-BulkLoadInternetAccessData {
     &$BulkLoadExe @bulkParams
     Test-ExitCode
 
-    Remove-BulkClientKeyAndSecret
+    Remove-BulkClientKeyAndSecret -lmsToolkitConfig $lmsToolkitConfig -databasesConfig $databasesConfig
+
 }
 
 Export-ModuleMember Invoke-BulkLoadInternetAccessData

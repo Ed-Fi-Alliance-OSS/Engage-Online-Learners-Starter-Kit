@@ -4,11 +4,7 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -Version 5
-#Requires -RunAsAdministrator
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
-Import-Module -force "$PSScriptRoot\nuget-helper.psm1" -ArgumentList $configuration
+Import-Module -force "$PSScriptRoot\nuget-helper.psm1"
 $ErrorActionPreference = "Stop"
 <#
 .SYNOPSIS
@@ -29,21 +25,25 @@ function Install-ClientBulkLoader {
         $InstallDir,
         [Parameter(Mandatory=$True)]
         [string]
-        $ToolsPath
+        $ToolsPath,
+        [Parameter(Mandatory=$True)]
+        [string]
+        $edfiSource
     )
 
     $params = @{
         PackageVersion = "$PackageVersion"
         PackageName = "$PackageName"
         toolsPath = $toolsPath
+        edfiSource = $edfiSource
    }
     
     $PackageVersion = Get-NuGetPackageVersion @params
-    $EdFiFeed = Get-EdFiFeed
+
     &dotnet tool install `
         --tool-path $InstallDir `
         --version $packageVersion `
-        --add-source $EdFiFeed `
+        --add-source $edfiSource `
         $PackageName
 
     Test-ExitCode

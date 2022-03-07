@@ -3,9 +3,9 @@
   "installDirectory": "C:\\Ed-Fi",
   "EdFiNuGetFeed": "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json",
   "webSiteName": "Ed-Fi",
-  "installDatabases": true,
   "odsPlatformVersion": "5.3",
   "databases": {
+      "installDatabases": true,
       "applicationCredentials": {
           "databaseUser": "",
           "databasePassword": "",
@@ -23,14 +23,17 @@
       "odsDatabaseName": "EdFi_Ods",
       "securityDatabaseName": "EdFi_Security",
       "useTemplates": false,
-      "odsTemplate": "populated",
       "noDuration": false,
       "dropDatabases": true,
       "apiMode": "sharedinstance",
       "odsTokens": [],
+      "odsDatabaseTemplateName": "populated",
       "useIntegratedSecurity": true,
-      "minimalTemplateScript": "Ods_Minimal_Template",
-      "populatedTemplateScript": "EdFiMinimalTemplate",
+      "minimalTemplateSuffix":"Ods_Minimal_Template",
+      "_populatedTemplateSuffix": "Ods_Populated_Template",
+      "populatedTemplateSuffix":"Ods",
+      "populatedTemplateScript": "GrandBend",
+      "_populatedTemplateScript": "sampledata",
       "addAdminUser": false,
       "dbAdminUser": "edfi",
       "dbAdminUserPassword": "edfi",
@@ -39,14 +42,8 @@
           "version": "5.3"
       }
   },
-
-  "installPrerequisites": true,
-
-  "installEdFiDatabases": true,
-
-  "installAdminApp": true,
-  "uninstallAdminApp": false,
   "adminApp": {
+      "installAdminApp": true,
       "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\AdminApp",
       "appStartUp": "OnPrem",
       "odsApi": {
@@ -62,9 +59,8 @@
       }
   },
 
-  "installWebApi": true,
-  "uninstallWebApi": false,
   "webapi": {
+      "installWebApi": true,
       "webApplicationName": "WebApi",
       "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\WebApi",
       "webApiAppSettings": {
@@ -89,10 +85,8 @@
           "version": "5.3"
       }
   },
-
-  "installSwaggerUI": true,
-  "uninstallSwaggerUI": false,
   "swaggerui": {
+      "installSwaggerUI": true,
       "WebApplicationName": "SwaggerUI",
       "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\SwaggerUI",
       "swaggerAppSettings": {
@@ -108,9 +102,8 @@
           "version": "5.3"
       }
   },
-  "installAMT": true,
-  "uninstallAMT": false,
   "AMT": {
+      "installAMT": true,
       "amtDownloadPath": "C:\\temp\\downloads",
       "amtInstallerPath": "C:\\temp\\tools",
       "options": "EWS RLS Indexes Engage",
@@ -122,8 +115,9 @@
           "version": "2.8.0"
       }
   },
-  "installBulkLoadClient": true,
+  
   "bulkLoadClientConfig": {
+    "installBulkLoadClient": true,
     "installationDirectory": "C:\\Ed-Fi\\Bulk-Load-Client",
     "packageDetails": {
         "packageName": "EdFi.Suite3.BulkLoadClient.Console",
@@ -134,8 +128,9 @@
         "version": "5.2"
     }
   },
-  "installLMSToolkit": true,
+  
   "lmsToolkit": {
+    "installLMSToolkit": true,
     "installationDirectory": "C:\\Ed-Fi\\",
      "webRootFolder": "c:\\inetpub\\Ed-Fi",
      "packageURL": "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit",

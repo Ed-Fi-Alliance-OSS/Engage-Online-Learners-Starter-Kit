@@ -4,21 +4,12 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -Version 5
-#Requires -RunAsAdministrator
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
+# Requires -RunAsAdministrator
 
-$packageDetails = @{
-    packageName = "$($configuration.webApiConfig.packageInstallerDetails.packageName)"
-    version = "$($configuration.webApiConfig.packageInstallerDetails.version)"
-}
-
-$webApplicationName = $configuration.webApiConfig.webApplicationName
-$webApiVersion = $configuration.webApiConfig.packageDetails.version
 $ErrorActionPreference = "Stop"
 
-Import-Module -Force "$PSScriptRoot\nuget-helper.psm1" -ArgumentList $configuration
+Import-Module -Force "$PSScriptRoot\nuget-helper.psm1"
+Import-Module -Force "$PSScriptRoot\Tool-Helpers.psm1"
 
 <#
 .SYNOPSIS
@@ -31,10 +22,13 @@ Import-Module -Force "$PSScriptRoot\nuget-helper.psm1" -ArgumentList $configurat
 
 function New-WebApiParameters {
     param (
-        [Hashtable] $webapiConfig,
+        [Hashtable] $webApiConfig,
         [Hashtable] $databasesConfig,
         [String] $toolsPath,
-        [String] $downloadPath
+        [String] $downloadPath,
+        [Parameter(Mandatory=$True)]
+        [string]
+        $edfiSource
     )
 
     $dbConnectionInfo = @{
@@ -47,28 +41,28 @@ function New-WebApiParameters {
     }
 
     $webApiFeatures = @{
-        ExcludedExtensionSources = $webapiConfig.webApiAppSettings.excludedExtensionSources
+        ExcludedExtensionSources = $webApiConfig.webApiAppSettings.excludedExtensionSources
         FeatureIsEnabled=@{
-            profiles = $webapiConfig.webApiAppSettings.profiles
-            extensions = $webapiConfig.webApiAppSettings.extensions
+            profiles = $webApiConfig.webApiAppSettings.profiles
+            extensions = $webApiConfig.webApiAppSettings.extensions
         }
     }
     $nugetPackageVersionParam=@{
-        PackageName="$($webapiConfig.packageDetails.packageName)"
-        PackageVersion="$($webApiVersion)"
+        PackageName="$($webApiConfig.packageDetails.packageName)"
+        PackageVersion="$($webApiConfig.packageDetails.version)"
         ToolsPath="$toolsPath"
-        edfiSource="$($configuration.EdFiNuGetFeed)"
+        edfiSource="$($edfiSource)"
     }
     $webApiLatestVersion = Get-NuGetPackageVersion @nugetPackageVersionParam
 
     return @{
         ToolsPath = $toolsPath
         DownloadPath = $downloadPath
-        PackageName = "$($webapiConfig.packageDetails.packageName)"
+        PackageName = "$($webApiConfig.packageDetails.packageName)"
         PackageVersion = "$webApiLatestVersion"
-        PackageSource = "$($configuration.EdFiNuGetFeed)"
-        WebApplicationPath = $webapiConfig.installationDirectory
-        WebApplicationName = $webApplicationName
+        PackageSource = "$($edfiSource)"
+        WebApplicationPath = $webApiConfig.installationDirectory
+        WebApplicationName = $webApiConfig.webApplicationName
         InstallType = $databasesConfig.apiMode
         AdminDatabaseName = $databasesConfig.adminDatabaseName
         OdsDatabaseName = $databasesConfig.odsDatabaseName
@@ -99,14 +93,22 @@ function Install-EdFiAPI(){
         # Hashtable containing Web API settings and the installation directory
         [Hashtable]
         [Parameter(Mandatory=$true)]
-        $webapiConfig,
+        $webApiConfig,
 
         # Hashtable containing information about the databases and its server
         [Hashtable]
         [Parameter(Mandatory=$true)]
-        $databasesConfig
+        $databasesConfig,
+        [Parameter(Mandatory=$true)]
+        $edfiSource
 	)
-
+    $packageDetails = @{
+        packageName = "$($webApiConfig.packageInstallerDetails.packageName)"
+        version = "$($webApiConfig.packageInstallerDetails.version)"
+        toolsPath    = $toolsPath
+        downloadPath = $downloadPath
+        edfiSource   = $edfiSource
+    }
     Write-Host "---" -ForegroundColor Magenta
     Write-Host "Ed-Fi Web API module process starting..." -ForegroundColor Magenta
 
@@ -116,19 +118,33 @@ function Install-EdFiAPI(){
 	{
 		Remove-Module $pathResolverModule
 	}
-
+    Write-Host "EdFi Package ($($webApiConfig.packageInstallerDetails.packageName))-$($webApiConfig.packageInstallerDetails.version)..." -ForegroundColor Cyan
 	$packagePath = Install-EdFiPackage @packageDetails
 
 	Write-Host "Starting installation..." -ForegroundColor Cyan
 
-    $parameters = New-WebApiParameters $webapiConfig $databasesConfig $toolsPath $downloadPath
+    $parameters = New-WebApiParameters $webApiConfig $databasesConfig $toolsPath $downloadPath $edfiSource
 
     $parameters.WebSiteName = $webSiteName
 
     Import-Module -Force "$packagePath\Install-EdFiOdsWebApi.psm1"
-
+write-host "****edfiods install"
     Install-EdFiOdsWebApi @parameters
-    
+    # IIS-Components.psm1 must be imported after the IIS-WebServerManagementTools
+    # windows feature has been enabled. This feature is enabled during Install-WebApi
+    # by the AppCommon library.
+    try{
+        Write-Host "********$installerPath****** $dirx*"
+        Import-Module -Force Join-Path "$packagePath\AppCommon\IIS\IIS-Components.psm1"
+        $portNumber = IIS-Components\Get-PortNumber $WebRoot
+
+        $expectedWebApiBaseUri = "https://$($env:computername):$($portNumber)/$($webApiConfig.webApplicationName)"
+        Write-Host "Setting API URL..."
+        Set-ApiUrl $expectedWebApiBaseUri
+        Write-Host "Setting API URL Continue..."
+    }catch{
+        Write-Host "Skipped $webApiAppCommon"
+    }
     return $packagePath
 }
 

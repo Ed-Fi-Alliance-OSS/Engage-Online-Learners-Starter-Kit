@@ -4,15 +4,11 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -Version 5
-#Requires -RunAsAdministrator
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
-
+# Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
-$swaggerUIVersion = $configuration.packageDetails.version
 
-Import-Module "$PSScriptRoot\nuget-helper.psm1" -ArgumentList $configuration
+Import-Module "$PSScriptRoot\nuget-helper.psm1"
+Import-Module "$PSScriptRoot\Tool-Helpers.psm1"
 
 <#
 .SYNOPSIS
@@ -25,11 +21,6 @@ Import-Module "$PSScriptRoot\nuget-helper.psm1" -ArgumentList $configuration
 function Install-EdFiSwagger(){
 	[CmdletBinding()]
 	param (
-        # IIS web site name
-        [string]
-        [Parameter(Mandatory=$true)]
-        $webSiteName,
-
         # Path for storing installation tools
         [string]
         [Parameter(Mandatory=$true)]
@@ -46,60 +37,81 @@ function Install-EdFiSwagger(){
         $swaggerUIConfig,
         [string]
         [Parameter(Mandatory=$true)]
-        $webAPISite
+        $ApiUrl,
+        [string] 
+        [Parameter(Mandatory=$true)]
+        $edfiSource
     )
-
+    
     $paths = @{
         toolsPath = $toolsPath
         downloadPath = $downloadPath
+        edfiSource = $edfiSource
     }
 
     Write-Host "---" -ForegroundColor Magenta
     Write-Host "Ed-Fi Swagger module process starting..." -ForegroundColor Magenta
 
     $packageDetails = @{
-        packageName = "$($configuration.swaggerUIConfig.packageInstallerDetails.packageName)"
-        version = "$($configuration.swaggerUIConfig.packageInstallerDetails.version)"
+        packageName = "$($swaggerUIConfig.packageInstallerDetails.packageName)"
+        version = "$($swaggerUIConfig.packageInstallerDetails.version)"
     }
-
+    $newParam = @{
+        swaggerUIConfig=$swaggerUIConfig
+        ApiUrl=$ApiUrl
+        toolsPath=$toolsPath
+        downloadPath=$downloadPath
+        edfiSource=$edfiSource
+    }
     $packagePath = nuget-helper\Install-EdFiPackage @packageDetails @paths
-
-    $parameters = New-SwaggerUIParameters $swaggerUIConfig $toolsPath $downloadPath $webAPISite
+    Write-Host "Creating parameter array..." -ForegroundColor Cyan
+    $parameters = New-SwaggerUIParameters @newParam
 
     $parameters.WebSiteName = $webSiteName
-
+    Write-Host "Importing module Install-EdFiOdsSwaggerUI..." -ForegroundColor Cyan
     Import-Module -Force "$packagePath\Install-EdFiOdsSwaggerUI.psm1"
-
-    Write-Host "Starting installation..." -ForegroundColor Cyan
-    Install-EdFiOdsSwaggerUI @parameters
+    try{
+    Write-Host "Starting installation SwaggerUI..." -ForegroundColor Cyan
+        Install-EdFiOdsSwaggerUI @parameters
+    }
+    catch{
+        write-host "Installation failed (SwaggerUI)..."
+        Test-ExitCode
+    }
 }
 
 function New-SwaggerUIParameters {
     param (
         [Hashtable] $swaggerUIConfig,
-        [String] $toolsPath,
-        [String] $downloadPath,
         [string]
         [Parameter(Mandatory=$true)]
-        $webAPISite
+        $ApiUrl,
+        [String] $toolsPath,
+        [String] $downloadPath,
+        [string] 
+        [Parameter(Mandatory=$true)]
+        $edfiSource
     )
+    Write-Host "New param..."
     $nugetPackageVersionParam=@{
-        PackageName="$($configuration.swaggerUIConfig.packageDetails.packageName)"
-        PackageVersion="$($configuration.swaggerUIConfig.packageDetails.version)"
+        PackageName="$($swaggerUIConfig.packageDetails.packageName)"
+        PackageVersion="$($swaggerUIConfig.packageDetails.version)"
         ToolsPath="$toolsPath"
-        edfiSource="$($configuration.EdFiNuGetFeed)"
+        edfiSource="$($edfiSource)"
     }
+    Write-Host "Get Swagger Version..."
     $swaggerUINugetVersion = Get-NuGetPackageVersion @nugetPackageVersionParam
+    Write-Host "Return New param..."
     return @{
+        PackageName = "$($swaggerUIConfig.packageDetails.packageName)"
+        PackageVersion = "$($swaggerUINugetVersion)"
+        PackageSource = "$($edfiSource)"
         ToolsPath = $toolsPath
         DownloadPath = $downloadPath
-        PackageName = "$($configuration.swaggerUIConfig.packageDetails.packageName)"
-        PackageVersion = $swaggerUINugetVersion
-        PackageSource = "$($configuration.EdFiNuGetFeed)"
-        WebApplicationPath = $swaggerUIConfig.installationDirectory
-        WebsiteName = "$($configuration.webSiteName)"
-        WebApplicationName="$($configuration.swaggerUIConfig.WebApplicationName)"
-        WebApiVersionUrl = "$($webAPISite)"
+        WebApplicationPath = "$($swaggerUIConfig.installationDirectory)"
+        WebSiteName = "EdFi"        
+        WebApplicationName="$($swaggerUIConfig.WebApplicationName)"
+        WebApiVersionUrl = "$($ApiUrl)"
         DisablePrepopulatedCredentials = $True
     }
 }

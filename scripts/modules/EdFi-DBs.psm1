@@ -4,14 +4,12 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -Version 5
-#Requires -RunAsAdministrator
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
+# Requires -RunAsAdministrator
+
 $ErrorActionPreference = "Stop"
 
-Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force -ArgumentList $configuration
-Import-Module -Force "$PSScriptRoot\nuget-helper.psm1"  -ArgumentList $configuration
+Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1"
+Import-Module -Force "$PSScriptRoot\nuget-helper.psm1"
 
 <#
 .SYNOPSIS
@@ -42,7 +40,10 @@ function Install-EdFiDbs() {
         [Parameter(Mandatory = $true)]
         [Hashtable] $databasesConfig,
         [Parameter(Mandatory = $true)]
-        [string] $timeTravelScriptPath
+        [string] $timeTravelScriptPath,
+        [Parameter(Mandatory=$True)]
+        [string]
+        $edfiSource
     )
 
     Write-Host "---" -ForegroundColor Magenta
@@ -57,7 +58,6 @@ function Install-EdFiDbs() {
     $databaseUser = $databasesConfig.installCredentials.databaseUser
     $databasePassword = $databasesConfig.installCredentials.databasePassword
     $useIntegratedSecurity = $databasesConfig.installCredentials.useIntegratedSecurity
-    $odsTemplate = $databasesConfig.odsTemplate
     $dropDatabases = $databasesConfig.dropDatabases
     $noDuration = $databasesConfig.noDuration
 
@@ -66,6 +66,7 @@ function Install-EdFiDbs() {
         version      = "$($databasesConfig.packageDetails.version)"
         toolsPath    = $toolsPath
         downloadPath = $downloadPath
+        edfiSource   = $edfiSource
     }
 
     $EdFiRepositoryPath = Install-EdFiPackage @packageDetails
@@ -121,29 +122,43 @@ function Install-EdFiDbs() {
     #Changing config file
     $json = Get-Content (Join-Path $EdFiRepositoryPath "configuration.json") | ConvertFrom-Json
     if($useIntegratedSecurity){
-        SetValue -object $json -key "ConnectionStrings.EdFi_Ods" -value "server=$($configuration.databasesConfig.databaseServer);trusted_connection=True;database=$($configuration.databasesConfig.odsDatabaseName);Application Name=EdFi.Ods.WebApi"
-        SetValue -object $json -key "ConnectionStrings.EdFi_Security" -value "server=$($configuration.databasesConfig.databaseServer);trusted_connection=True;database=$($configuration.databasesConfig.securityDatabaseName);persist security info=True;Application Name=EdFi.Ods.WebApi"
-        SetValue -object $json -key "ConnectionStrings.EdFi_Admin" -value "server=$($configuration.databasesConfig.databaseServer);trusted_connection=True;database=$($configuration.databasesConfig.adminDatabaseName);Application Name=EdFi.Ods.WebApi"
-        SetValue -object $json -key "ConnectionStrings.EdFi_Master" -value "server=$($configuration.databasesConfig.databaseServer);trusted_connection=True;database=master;Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Ods" -value "server=$($databasesConfig.databaseServer);trusted_connection=True;database=$($databasesConfig.odsDatabaseName);Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Security" -value "server=$($databasesConfig.databaseServer);trusted_connection=True;database=$($databasesConfig.securityDatabaseName);persist security info=True;Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Admin" -value "server=$($databasesConfig.databaseServer);trusted_connection=True;database=$($databasesConfig.adminDatabaseName);Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Master" -value "server=$($databasesConfig.databaseServer);trusted_connection=True;database=master;Application Name=EdFi.Ods.WebApi"
     }
     else {
-        SetValue -object $json -key "ConnectionStrings.EdFi_Ods" -value "server=$($configuration.databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($configuration.databasesConfig.odsDatabaseName);Application Name=EdFi.Ods.WebApi"
-        SetValue -object $json -key "ConnectionStrings.EdFi_Security" -value "server=$($configuration.databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($configuration.databasesConfig.securityDatabaseName);persist security info=True;Application Name=EdFi.Ods.WebApi"
-        SetValue -object $json -key "ConnectionStrings.EdFi_Admin" -value "server=$($configuration.databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($configuration.databasesConfig.adminDatabaseName);Application Name=EdFi.Ods.WebApi"
-        SetValue -object $json -key "ConnectionStrings.EdFi_Master" -value "server=$($configuration.databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=master;Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Ods" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($databasesConfig.odsDatabaseName);Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Security" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($databasesConfig.securityDatabaseName);persist security info=True;Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Admin" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($databasesConfig.adminDatabaseName);Application Name=EdFi.Ods.WebApi"
+        SetValue -object $json -key "ConnectionStrings.EdFi_Master" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=master;Application Name=EdFi.Ods.WebApi"
     }
     
-    SetValue -object $json -key "ApiSettings.Mode" -value "$($configuration.databasesConfig.apiMode)"
-    SetValue -object $json -key "ApiSettings.Engine" -value "$($configuration.databasesConfig.engine)"
+    SetValue -object $json -key "ApiSettings.Mode" -value "$($databasesConfig.apiMode)"
+    SetValue -object $json -key "ApiSettings.Engine" -value "$($databasesConfig.engine)"
+    SetValue -object $json -key "ApiSettings.OdsDatabaseTemplateName" -value "$($databasesConfig.odsDatabaseTemplateName)"
     SetValue -object $json -key "ApiSettings.DropDatabases" -value "$($dropDatabases)"
-    SetValue -object $json -key "ApiSettings.MinimalTemplateScript" -value "$($configuration.databasesConfig.minimalTemplateScript)"
-    SetValue -object $json -key "ApiSettings.PopulatedTemplateScript" -value "$($configuration.databasesConfig.populatedTemplateScript)"
-    SetValue -object $json -key "ApiSettings.OdsDatabaseTemplateName" -value "$odsTemplate"
+    
+    SetValue -object $json -key "ApiSettings.MinimalTemplateSuffix" -value "$($databasesConfig.minimalTemplateSuffix)"
+    #SetValue -object $json -key "ApiSettings._PopulatedTemplateSuffix" -value "$($databasesConfig._populatedTemplateSuffix)"
+    SetValue -object $json -key "ApiSettings.PopulatedTemplateSuffix" -value "$($databasesConfig.populatedTemplateSuffix)"
 
+    SetValue -object $json -key "ApiSettings.MinimalTemplateScript" -value "$($databasesConfig.minimalTemplateScript)"
+    SetValue -object $json -key "ApiSettings.PopulatedTemplateScript" -value "$($databasesConfig.populatedTemplateScript)"
+    #SetValue -object $json -key "ApiSettings._PopulatedTemplateScript" -value "$($databasesConfig._populatedTemplateScript)"
+    
     $json | ConvertTo-Json | Out-File (Join-Path $EdFiRepositoryPath "configuration.json")
 
     $env:toolsPath = (Join-Path (Get-RootPath) 'tools')
-    Initialize-DeploymentEnvironment
+   # Although we have no plugins, the install does not react well when the
+    # directory does not exist.
+    New-Item -Path c:/plugin -Type Directory -Force | Out-Null
+    
+
+    Initialize-DeploymentEnvironment 
+   
+   
+   # Initialize-DeploymentEnvironment -OdsDatabaseTemplateName "populated"
     # Bring the years up to now instead of 2010-2011
     $timeTravelDbConn = @{
         FileName            = $timeTravelScriptPath
@@ -152,8 +167,9 @@ function Install-EdFiDbs() {
         DatabasePassword    = $databasesConfig.installCredentials.databasePassword
         DatabaseName        = $databasesConfig.odsDatabaseName
     }
-
+    Write-Host "Executing Time Travel script..."
     Invoke-SqlCmdOnODS @timeTravelDbConn
+    Write-Host "Time Travel script finished..."
 }
 
 Export-ModuleMember Install-EdFiDbs

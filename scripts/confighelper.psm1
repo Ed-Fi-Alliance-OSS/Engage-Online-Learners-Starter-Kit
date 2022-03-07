@@ -28,23 +28,7 @@ function Format-ConfigurationFileToHashTable {
         installDirectory= $configJson.installDirectory
         EdFiNuGetFeed =  $configJson.EdFiNuGetFeed
         webSiteName = $configJson.webSiteName
-        installDatabases = $configJson.installDatabases
-        installEdFiDatabases = $configJson.installEdFiDatabases
-        installAdminApp = $configJson.installAdminApp
-        installWebApi = $configJson.installWebApi
-        installSwaggerUI = $configJson.installSwaggerUI
-        installAMT = $configJson.installAMT
-        installPrerequisites = $configJson.installPrerequisites
-        installLMSToolkit = $configJson.installLMSToolkit
-        uninstallAdminApp = $configJson.uninstallAdminApp
-        uninstallWebApi = $configJson.uninstallWebApi
-        uninstallSwaggerUI = $configJson.uninstallSwaggerUI
-        uninstallAMT = $configJson.uninstallAMT
-		
-        anyApplicationsToInstall = $configJson.installDatabases -or $configJson.installAdminApp -or $configJson.installWebApi -or $configJson.installSwaggerUI
-
-        anyApplicationsToUninstall = $configJson.uninstallAdminApp -or $configJson.uninstallWebApi -or $configJson.uninstallSwaggerUI
-
+       
         databasesConfig = Convert-PsObjectToHashTable $configJson.databases
 
         adminAppConfig = Convert-PsObjectToHashTable $configJson.adminApp
@@ -55,9 +39,7 @@ function Format-ConfigurationFileToHashTable {
 
         amtConfig = Convert-PsObjectToHashTable $configJson.AMT
 
-        installBulkLoadClient = $configJson.installBulkLoadClient
-
-        bulkLoadClientConfig = $configJson.bulkLoadClientConfig
+        bulkLoadClientConfig = Convert-PsObjectToHashTable $configJson.bulkLoadClientConfig
 
         lmsToolkitConfig =  Convert-PsObjectToHashTable $configJson.lmsToolkit
     }

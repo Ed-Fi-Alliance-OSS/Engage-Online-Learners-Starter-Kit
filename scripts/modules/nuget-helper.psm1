@@ -3,16 +3,7 @@
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
 #Requires -version 5
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
-$packageSource = If ($configuration.EdFiNuGetFeed) {"$($configuration.EdFiNuGetFeed)"} Else {"https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"}
 $NuGetInstaller = "https://dist.nuget.org/win-x86-commandline/v5.3.1/nuget.exe"
-function Get-EdFiFeed{
-    param()
-    return $packageSource;
-
-}
 function Install-NugetCli {
     [CmdletBinding()]
     param (
@@ -45,11 +36,17 @@ function Install-NugetCli {
 }
 function Install-EdFiPackage {
     param (
+        [Parameter(Mandatory=$True)]
+        [string]
         $packageName,
+        [Parameter(Mandatory=$True)]
+        [string]
         $version,
         $toolsPath = "C:\temp\tools",
         $downloadPath = "C:\temp\downloads",
-        $edfiSource=$packageSource
+        [Parameter(Mandatory=$True)]
+        [string]
+        $edfiSource
     )
     $nugetPackageVersionParam=@{
         PackageName="$($packageName)"
@@ -66,7 +63,7 @@ function Install-EdFiPackage {
     if ($LASTEXITCODE) {
         throw "Failed to install package $($packageName) $($packageVersion)"
     }
-    return Resolve-Path $downloadedPackagePath
+    return $downloadedPackagePath
 }
 
 
@@ -80,8 +77,9 @@ function Get-NuGetPackageVersion {
         [string]
         $PackageVersion,
         $ToolsPath = "C:\temp\tools",
+        [Parameter(Mandatory=$True)]
         [string]
-        $edfiSource=$packageSource
+        $edfiSource
     )
     Write-Host "Looking latest patch of $PackageName version $PackageVersion"
     $NuGetExe ="$toolsPath\nuget"
@@ -121,12 +119,15 @@ function Install-NuGetPackage {
 
         [Parameter(Mandatory=$True)]
         [string]
-        $PackageVersion
+        $PackageVersion,
+        [Parameter(Mandatory=$True)]
+        [string]
+        $edfiSource
     )
 
     $params = @{
         NuGetExe = "$toolsPath\nuget"
-        EdFiFeed = $packageSource
+        EdFiFeed = $edfiSource
         PackageName = $PackageName
         PackageVersion = $PackageVersion
     }
@@ -134,7 +135,7 @@ function Install-NuGetPackage {
 
     $params = @(
         "install",
-        "-Source", $packageSource,
+        "-Source", $edfiSource,
         "-OutputDirectory", $ToolsPath,
         "-Version", $PackageVersion,
         $PackageName

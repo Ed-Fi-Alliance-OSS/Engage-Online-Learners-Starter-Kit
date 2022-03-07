@@ -4,20 +4,10 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -Version 5
-#Requires -RunAsAdministrator
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
-
+# Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
-$adminAppVersion = $configuration.adminAppConfig.packageInstallerDetails.version
 
-$packageDetails = @{
-    packageName = "$($configuration.adminAppConfig.packageInstallerDetails.packageName)"
-    version = "$($configuration.adminAppConfig.packageInstallerDetails.version)"
-}
-
-Import-Module "$PSScriptRoot\nuget-helper.psm1" -ArgumentList $configuration
+Import-Module "$PSScriptRoot\nuget-helper.psm1"
 <#
 .SYNOPSIS
     Installs the Ed-Fi Admin App.
@@ -33,7 +23,8 @@ function New-AdminAppParameters {
         [Hashtable] $databasesConfig,
         [String] $toolsPath,
         [String] $downloadPath,
-        [String] $webAPISite
+        [String] $ApiUrl,
+        [string] $edfiSource
     )
 
     $dbConnectionInfo = @{
@@ -49,19 +40,19 @@ function New-AdminAppParameters {
         ApiMode = $databasesConfig.apiMode
     }
     $nugetPackageVersionParam=@{
-        PackageName="$($configuration.adminAppConfig.packageDetails.packageName)"
-        PackageVersion="$($configuration.adminAppConfig.packageDetails.version)"
+        PackageName="$($adminAppConfig.packageDetails.packageName)"
+        PackageVersion="$($adminAppConfig.packageDetails.version)"
         ToolsPath="$toolsPath"
-        edfiSource="$($configuration.EdFiNuGetFeed)"
+        edfiSource="$($edfiSource)"
     }
     $adminAppNugetVersion = Get-NuGetPackageVersion @nugetPackageVersionParam
     return @{
         ToolsPath = $toolsPath
         DownloadPath = $downloadPath
-        PackageName = "$($configuration.adminAppConfig.packageDetails.packageName)"
-        PackageSource="$($configuration.EdFiNuGetFeed)"
+        PackageName = "$($adminAppConfig.packageDetails.packageName)"
+        PackageSource="$($edfiSource)"
         PackageVersion = "$($adminAppNugetVersion)"
-        OdsApiUrl = $webAPISite
+        OdsApiUrl = $ApiUrl
         InstallCredentialsUser = $databasesConfig.installCredentials.databaseUser
         InstallCredentialsPassword = $databasesConfig.installCredentials.databasePassword
         InstallCredentialsUseIntegratedSecurity = $databasesConfig.installCredentials.useIntegratedSecurity
@@ -97,7 +88,10 @@ function Install-EdFiAdmin(){
 		$databasesConfig,
         [string]
 		[Parameter(Mandatory=$true)]
-		$webAPISite
+		$ApiUrl,
+        [Parameter(Mandatory=$True)]
+        [string]
+        $edfiSource
 	)
 
     Write-Host "---" -ForegroundColor Magenta
@@ -106,8 +100,12 @@ function Install-EdFiAdmin(){
     $paths = @{
         toolsPath = $toolsPath
         downloadPath = $downloadPath
+        edfiSource = $edfiSource
     }
-
+    $packageDetails = @{
+        packageName = "$($adminAppConfig.packageInstallerDetails.packageName)"
+        version = "$($adminAppConfig.packageInstallerDetails.version)"
+    }
     $packagePath = nuget-helper\Install-EdFiPackage @packageDetails @paths
 
 	Write-Host "Start installation..." -ForegroundColor Cyan
@@ -118,7 +116,8 @@ function Install-EdFiAdmin(){
         databasesConfig = $databasesConfig
         toolsPath = $toolsPath
         downloadPath = $downloadPath
-        webAPISite = $webAPISite
+        ApiUrl = $ApiUrl
+        edfiSource = $edfiSource
     }
     $parameters = New-AdminAppParameters @adminAppParams
 

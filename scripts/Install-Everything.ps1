@@ -31,18 +31,35 @@ param (
     # Temporary directory for downloaded components.
     [string]
     $ToolsPath = "$PSScriptRoot/.tools"
+    
+
 )
 $global:ErrorActionPreference = "Stop"
 $global:ProgressPreference = "SilentlyContinue"
-
+$configPath = "$PSScriptRoot\configuration.json"
+Import-Module -Force "$PSScriptRoot\confighelper.psm1"
+$configuration = Format-ConfigurationFileToHashTable $configPath
 Import-Module -Name "$PSScriptRoot/modules/Configure-Windows.psm1" -Force
 
 Set-TLS12Support
 Set-ExecutionPolicy bypass -Scope CurrentUser -Force;
 
-./Install-ThirdPartyApplications.ps1 -ToolsPath $ToolsPath
-
-./Install-EdFiTechnologySuite.ps1
+& "$PSScriptRoot/Install-ThirdPartyApplications.ps1" -ToolsPath $ToolsPath
+Write-Host "Adding EdFi Suite parameter"
+$edfiSuiteParam=@{
+    InstallPath=$configuration.installDirectory
+    WebRoot=$configuration.webSiteName
+    downloadPath=$configuration.downloadDirectory
+    EdFiNuGetFeed=$configuration.EdFiNuGetFeed
+    databasesConfig=$configuration.databasesConfig
+    adminAppConfig=$configuration.adminAppConfig
+    webApiConfig=$configuration.webApiConfig
+    swaggerUIConfig=$configuration.swaggerUIConfig
+    amtConfig=$configuration.amtConfig
+    bulkLoadClientConfig=$configuration.bulkLoadClientConfig
+    lmsToolkitConfig=$configuration.lmsToolkitConfig
+}
+& "$PSScriptRoot/Install-EdFiTechnologySuite.ps1" @edfiSuiteParam
 
 # Restart IIS, which also requires stopping the Windows Activation Service.
 # This step is necessary in many cases for IIS to recognize and use the newly
@@ -50,6 +67,15 @@ Set-ExecutionPolicy bypass -Scope CurrentUser -Force;
 Stop-Service -name was -Force -Confirm:$False
 Start-Service -name w3svc
 
-./Install-StarterKit.ps1 `
-    -ToolsPath  $ToolsPath
+$starterKitParam= @{
+    lmsToolkitConfig=$configuration.lmsToolkitConfig
+    databasesConfig=$configuration.databasesConfig
+    ApiUrl="https://$($env:computername)/$($configuration.webApiConfig.webApplicationName)"
+    ToolsPath = "$($configuration.downloadDirectory)\tools"
+    ConsoleBulkLoadDirectory = "$($configuration.bulkLoadClientConfig.installationDirectory)"
+    LMSToolkitDirectory = Join-Path "$($configuration.lmsToolkitConfig.installationDirectory)" "LMS-Toolkit-$($configuration.lmsToolkitConfig.version)"
+    WebRoot = $configuration.lmsToolkitConfig.webRootFolder
+    OdsPlatformVersion = $configuration.odsPlatformVersion
+}
 
+& "$PSScriptRoot/Install-StarterKit.ps1" @starterKitParam

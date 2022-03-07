@@ -153,7 +153,7 @@ build {
   }
 
   provisioner "comment" {
-    comment     = "Install third party applications using default configuration values"
+    comment     = "Install Everything (Install-ThirdPartyApplications,Install-EdFiTechnologySuite,Install-StarterKit)"
     ui          = true
     bubble_text = false
   }
@@ -163,39 +163,7 @@ build {
     elevated_password = "${var.password}"
     elevated_user     = "${var.user_name}"
     inline            = [
-      "c:/${var.starter_kit_directory}/scripts/Install-ThirdPartyApplications.ps1"
-    ]
-  }
-
-  provisioner "comment" {
-    comment     = "Install Ed-Fi Technology Suite using default configuration values"
-    ui          = true
-    bubble_text = false
-  }
-
-  provisioner "powershell" {
-    debug_mode        = "${var.debug_mode}"
-    elevated_password = "${var.password}"
-    elevated_user     = "${var.user_name}"
-    inline            = [
-      "c:/${var.starter_kit_directory}/scripts/Install-EdFiTechnologySuite.ps1",
-      "Stop-Service -name WAS -Force -Confirm:$False",
-      "Start-Service -name W3SVC"
-    ]
-  }
-
-  provisioner "comment" {
-    comment     = "Install Starter Kit files using default configuration values"
-    ui          = true
-    bubble_text = false
-  }
-
-  provisioner "powershell" {
-    debug_mode        = "${var.debug_mode}"
-    elevated_password = "${var.password}"
-    elevated_user     = "${var.user_name}"
-    inline            = [
-      "c:/${var.starter_kit_directory}/scripts/Install-StarterKit.ps1"
+      "c:/${var.starter_kit_directory}/scripts/Install-Everything.ps1"
     ]
   }
 

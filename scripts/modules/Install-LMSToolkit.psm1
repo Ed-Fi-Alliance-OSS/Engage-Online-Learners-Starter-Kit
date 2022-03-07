@@ -3,12 +3,10 @@
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
 #Requires -version 5
-param(
-    [parameter(Position=0,Mandatory=$false)][Hashtable]$configuration
-)
+
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
-Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force -ArgumentList $configuration
+Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force
 function New-EnvFile {
     [CmdletBinding()]
     param (
@@ -70,31 +68,37 @@ function Install-LMSToolkit {
 
         [Parameter(Mandatory=$True)]
         [string]
-        $InstallDir
+        $InstallDir,
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $lmsToolkitConfig,
+        [Parameter(Mandatory=$True)]
+        [Hashtable]
+        $databasesConfig
     )
     
-    $BranchOrTag = "$($configuration.lmsToolkitConfig.version)"
+    $BranchOrTag = "$($lmsToolkitConfig.version)"
 
-    $DatabaseServer = "$($configuration.databasesConfig.databaseServer)"
+    $DatabaseServer = "$($databasesConfig.databaseServer)"
 
-    $UseIntegratedSecurity = "$($configuration.databasesConfig.installCredentials.useIntegratedSecurity)"
+    $UseIntegratedSecurity = "$($databasesConfig.installCredentials.useIntegratedSecurity)"
     
-    $DatabaseUserName = "$($configuration.databasesConfig.installCredentials.databaseUser)"
+    $DatabaseUserName = "$($databasesConfig.installCredentials.databaseUser)"
 
-    $DatabasePassword = "$($configuration.databasesConfig.installCredentials.databasePassword)"
+    $DatabasePassword = "$($databasesConfig.installCredentials.databasePassword)"
 
-    $DatabaseName = "$($configuration.databasesConfig.odsDatabaseName)"
+    $DatabaseName = "$($databasesConfig.odsDatabaseName)"
     
     # Download the LMS Toolkit source
     $lmsZip = "$DownloadPath/lms-toolkit.zip"
     try {
         # ... first assume that a branch name was given
-        $url = "$($configuration.lmsToolkitConfig.packageURL)/archive/refs/heads/$BranchOrTag.zip"
+        $url = "$($lmsToolkitConfig.packageURL)/archive/refs/heads/$BranchOrTag.zip"
         Invoke-RestMethod -Uri $url -OutFile $lmsZip
     }
     catch {
         # ... now try treating as a tag instead, and if it fails, let it bubble up
-        $url = "$($configuration.lmsToolkitConfig.packageURL)/archive/refs/tags/$BranchOrTag.zip"
+        $url = "$($lmsToolkitConfig.packageURL)/archive/refs/tags/$BranchOrTag.zip"
         Invoke-RestMethod -Uri $url -OutFile $lmsZip
     }
 

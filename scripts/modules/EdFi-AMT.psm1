@@ -4,30 +4,20 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -version 5
-param(
-    [parameter(Position=0,Mandatory=$true)][Hashtable]$configuration
-)
-
-$packageDetails = @{
-    packageName = $configuration.amtConfig.packageDetails.packageName
-    version=$configuration.amtConfig.packageDetails.version
-}
-
-$destinationName=
-If ($configuration.amtConfig.install_selfContained) 
-{"$($packageDetails.packageName)-$($configuration.amtConfig.selfContainedOS)-$($packageDetails.version)"} 
-Else {"$($packageDetails.packageName)-$($packageDetails.version)"} 
 $amtUninstallArgumentList = "-c `"{0}`" -e {1} -u"
 $amtInstallArgumentList = "-c `"{0}`" -o {1} -e {2}"
 $amtConsoleApp = "EdFi.AnalyticsMiddleTier.Console.exe"
-$packageUrl = "$($configuration.amtConfig.packageDetails.packageURL)/releases/download/$($packageDetails.version)/$($destinationName).zip"
+
 function Request-amt-Files{
     param (
-        $amtPath = "C:\temp\",
-        $downloadPath = "C:\temp\downloads\"
+        [string]$amtPath = "C:\temp\",
+        [string]$downloadPath = "C:\temp\downloads\",
+        [string]$destinationName,
+        [Hashtable]$amtConfig
     )
-	$Url = $packageUrl
-	
+    
+	$Url = "$($amtConfig.packageDetails.packageURL)/releases/download/$($amtConfig.packageDetails.version)/$($destinationName).zip"
+    
 	if( -Not (Test-Path -Path $amtPath ) )
 	{
         # Create the installer directory if it does not exist.
@@ -44,15 +34,17 @@ function Request-amt-Files{
 	Invoke-WebRequest -Uri $Url -OutFile $ZipFile 
 	
     if ($LASTEXITCODE) {
-        throw "Failed to download package $($packageDetails.packageName) $($packageDetails.version)"
+        throw "Failed to download package $($amtConfig.packageDetails.packageName) $($amtConfig.packageDetails.version)"
     }
 
     return Resolve-Path $amtPath
 }
 function Expand-amt-Files {
     param (
-        $amtPath = "C:\temp\",
-        $downloadPath = "C:\temp\downloads\"
+        [string]$amtPath = "C:\temp\",
+        [string]$downloadPath = "C:\temp\downloads\",
+        [string]$destinationName,
+        [Hashtable]$amtConfig
     )
     
     $amtVersionDestination = (Join-Path $amtPath $destinationName)
@@ -62,7 +54,7 @@ function Expand-amt-Files {
     Expand-Archive -Path $ZipFile -DestinationPath $amtVersionDestination -Force
     
     if ($LASTEXITCODE) {
-        throw "Failed to extract package $($packageDetails.packageName) $($packageDetails.version)"
+        throw "Failed to extract package $($amtConfig.packageDetails.packageName) $($amtConfig.packageDetails.version)"
     }
 }
 
@@ -84,6 +76,18 @@ function New-amt-ConnectionString{
     else{
         return $postgresqlConnectionString -f $databaseInfo.databaseServer,$databaseInfo.odsDatabaseName, $databaseInfo.applicationCredentials.databaseUser,$databaseInfo.applicationCredentials.databasePassword,$databaseInfo.applicationCredentials.databasePort
     }
+}
+function Get-DestinationName{
+    param(
+    [Hashtable]
+    [Parameter(Mandatory=$true)]
+    $amtConfig)
+    If ($amtConfig.install_selfContained) {
+        return "$($amtConfig.packageDetails.packageName)-$($amtConfig.selfContainedOS)-$($amtConfig.packageDetails.version)"
+    }
+    Else {
+        return "$($amtConfig.packageDetails.packageName)-$($amtConfig.packageDetails.version)"
+    } 
 }
 function Install-AMT {
     <#
@@ -109,25 +113,21 @@ function Install-AMT {
         [Parameter(Mandatory=$true)]
         $amtInstallerPath,
 
-        # Path for storing downloaded packages
-        [string]
-        [Parameter(Mandatory=$true)]
-        $amtDownloadPath,
-
-        # Hashtable containing information about the databases and its server
         [Hashtable]
         [Parameter(Mandatory=$true)]
-        $databasesConfig,
-
-        [string]
+        $amtConfig,
+        [Hashtable]
         [Parameter(Mandatory=$true)]
-        $amtOptions
+        $databasesConfig
     )
-  
+    $destinationName=Get-DestinationName $amtConfig
     $paths = @{
         amtPath = $amtInstallerPath
-        downloadPath = $amtDownloadPath
+        downloadPath = $amtConfig.amtDownloadPath
+        destinationName = $destinationName
+        amtConfig = $amtConfig
     }
+
     try {
         $databaseEngine = if($databasesConfig.engine -ieq "SQLServer"){"mssql"}else{"postgres"}
 
@@ -139,7 +139,7 @@ function Install-AMT {
     
         $consoleInstaller = Join-Path (Join-Path $amtInstallerPath $destinationName) $amtConsoleApp
         
-        Start-Process -NoNewWindow -FilePath $consoleInstaller -ArgumentList ($amtInstallArgumentList -f $connectionString, $amtOptions, $databaseEngine)
+        Start-Process -NoNewWindow -FilePath $consoleInstaller -ArgumentList ($amtInstallArgumentList -f $connectionString, $amtConfig.options, $databaseEngine)
     }
     catch {
         Write-Host $_
@@ -166,29 +166,24 @@ function Uninstall-AMT {
     #>
     [CmdletBinding()]
     param (
-        # Path for storing installation tools
         [string]
         [Parameter(Mandatory=$true)]
         $amtInstallerPath,
-
-        # Path for storing downloaded packages
-        [string]
-        [Parameter(Mandatory=$true)]
-        $amtDownloadPath,
-
         # Hashtable containing information about the databases and its server
         [Hashtable]
         [Parameter(Mandatory=$true)]
         $databasesConfig,
 
-        [string]
+        [Hashtable]
         [Parameter(Mandatory=$true)]
-        $amtOptions
+        $amtConfig
     )
-  
+    $destinationName=Get-DestinationName $amtConfig
     $paths = @{
         amtPath = $amtInstallerPath
-        downloadPath = $amtDownloadPath
+        downloadPath = $amtConfig.amtDownloadPath
+        destinationName = $destinationName
+        amtConfig = $amtConfig
     }
     try{
         $databaseEngine = if($databasesConfig.engine -ieq "SQLServer"){"mssql"}else{"postgres"}

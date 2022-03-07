@@ -3,26 +3,29 @@
 # The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 # See the LICENSE and NOTICES files in the project root for more information.
 #Requires -version 5
-param(
-    [parameter(Position=0,Mandatory=$false)][Hashtable]$configuration
-)
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
 function Set-ApiUrl {
     Param(
+        [Parameter(Mandatory=$True)]
+        [hashtable]
+        $adminAppConfig,
+        [Parameter(Mandatory=$True)]
+        [hashtable]
+        $swaggerUIConfig,
         [String] $expectedWebApiBaseUri
     )
-    if ([string]::IsNullOrEmpty($configuration.adminAppConfig.odsApi.apiUrl)) {
-        $configuration.adminAppConfig.odsApi.apiUrl = $expectedWebApiBaseUri
+    if ([string]::IsNullOrEmpty($adminAppConfig.odsApi.apiUrl)) {
+        $adminAppConfig.odsApi.apiUrl = $expectedWebApiBaseUri
     }
 
     if ([string]::IsNullOrEmpty($formattedConfig.swaggerUIConfig.swaggerAppSettings.apiMetadataUrl)) {
-        $configuration.swaggerUIConfig.swaggerAppSettings.apiMetadataUrl = "$expectedWebApiBaseUri/metadata/"
+        $swaggerUIConfig.swaggerAppSettings.apiMetadataUrl = "$expectedWebApiBaseUri/metadata/"
     }
 
     if ([string]::IsNullOrEmpty($formattedConfig.swaggerUIConfig.swaggerAppSettings.apiVersionUrl)) {
-        $configuration.swaggerUIConfig.swaggerAppSettings.apiVersionUrl = $expectedWebApiBaseUri
+        $swaggerUIConfig.swaggerAppSettings.apiVersionUrl = $expectedWebApiBaseUri
     }
 }
 function Test-ApiUrl {

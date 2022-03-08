@@ -250,25 +250,25 @@ param (
     $EdFiNuGetFeed  = "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json",
     # Hashtable containing information about the databases and its server.
     [hashtable]
-    $databasesConfig= $configuration.databasesConfig,
+    $databasesConfig,
     # Hashtable containing Admin App settings and the installation directory.
     [hashtable]
-    $adminAppConfig = $configuration.adminAppConfig,
+    $adminAppConfig,
     # Hashtable containing Web API settings and the installation directory.
     [hashtable]
-    $webApiConfig   = $configuration.webApiConfig,
+    $webApiConfig,
     # Hashtable containing SwaggerUI settings and the installation directory.
     [hashtable]
-    $swaggerUIConfig= $configuration.swaggerUIConfig,
+    $swaggerUIConfig,
     # Hashtable containing AMT settings and installation directory.
     [hashtable]
-    $amtConfig      = $configuration.amtConfig,
+    $amtConfig,
     # Hashtable containing Bulk Load Client settings and installation directory.
     [hashtable]
-    $bulkLoadClientConfig= $configuration.bulkLoadClientConfig,
+    $bulkLoadClientConfig,
     # Hashtable containing LMS Toolkit settings and installation directory.
     [hashtable]
-    $lmsToolkitConfig= $configuration.lmsToolkitConfig
+    $lmsToolkitConfig
 )
 
 $global:ErrorActionPreference = "Stop"

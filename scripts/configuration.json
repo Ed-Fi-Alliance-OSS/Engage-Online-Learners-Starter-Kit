@@ -30,10 +30,8 @@
       "odsDatabaseTemplateName": "populated",
       "useIntegratedSecurity": true,
       "minimalTemplateSuffix":"Ods_Minimal_Template",
-      "_populatedTemplateSuffix": "Ods_Populated_Template",
       "populatedTemplateSuffix":"Ods",
       "populatedTemplateScript": "GrandBend",
-      "_populatedTemplateScript": "sampledata",
       "addAdminUser": false,
       "dbAdminUser": "edfi",
       "dbAdminUserPassword": "edfi",
@@ -133,9 +131,11 @@
     "installLMSToolkit": true,
     "installationDirectory": "C:\\Ed-Fi\\",
      "webRootFolder": "c:\\inetpub\\Ed-Fi",
-     "packageURL": "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit",
-     "version": "main",
      "pathToWorkingDir": "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit",
+     "packageDetails": {
+        "packageURL": "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit",
+        "version": "main"
+     },     
      "sampleData": {
           "key": "dfghjkl34567",
           "secret": "4eryftgjh-pok%^K`$E%RTYG"

@@ -11,24 +11,40 @@ $ErrorActionPreference = "Stop"
     Installs the BulkLoader Client.
 .DESCRIPTION
     Installs the BulkLoader Client.
+.PARAMETER PackageName
+    BulkLoader Client Nuget PackageName.
+.PARAMETER Version
+    BulkLoader Client Nuget PackageVersion.
+.PARAMETER InstallDir
+    BulkLoader Client Installation directory.
+.PARAMETER ToolsPath
+    Path for storing installation tools.
+.PARAMETER ToolsPath
+    BulkLoader Client Nuget PackageVersion.
+.PARAMETER edfiSource
+    Ed-Fi nuget package feed source.
 #>
 function Install-ClientBulkLoader {
     param (
-        [Parameter(Mandatory=$True)]
+        # Nuget package name
         [string]
-        $PackageName,
-        [Parameter(Mandatory=$True)]
+        $PackageName="EdFi.Suite3.BulkLoadClient.Console",
+        
+        # Nuget version
         [string]
-        $PackageVersion,
-        [Parameter(Mandatory=$True)]
+        $PackageVersion="5.3",
+        
+        # Installation directory
         [string]
-        $InstallDir,
-        [Parameter(Mandatory=$True)]
+        $InstallDir="C:\\Ed-Fi\\Bulk-Load-Client",
+        
+        # Path for storing installation tools
         [string]
-        $ToolsPath,
-        [Parameter(Mandatory=$True)]
+        $ToolsPath="C:\\temp\\tools",
+        
+        # Ed-Fi nuget package feed source.
         [string]
-        $edfiSource
+        $edfiSource="https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
     )
 
     $params = @{
@@ -36,8 +52,8 @@ function Install-ClientBulkLoader {
         PackageName = "$PackageName"
         toolsPath = $toolsPath
         edfiSource = $edfiSource
-   }
-    
+    }
+    # Get nuget version.
     $PackageVersion = Get-NuGetPackageVersion @params
 
     &dotnet tool install `

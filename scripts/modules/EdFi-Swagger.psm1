@@ -15,32 +15,53 @@ Import-Module "$PSScriptRoot\Tool-Helpers.psm1"
     Installs the Ed-Fi Swagger.
 .DESCRIPTION
     Installs the Ed-Fi Swagger.
-.EXAMPLE
-    PS c:\> Install-EdFiSwagger
+.PARAMETER toolsPath
+    Path for storing installation tools.
+.PARAMETER downloadPath
+    Path for storing downloaded packages.
+.PARAMETER swaggerUIConfig
+	Hashtable containing SwaggerUI settings and the installation directory
+    $swaggerui= @{
+        WebApplicationName= "SwaggerUI"
+        installationDirectory= "C:\\inetpub\\wwwroot\\Ed-Fi\\SwaggerUI"
+        packageDetails= @{
+            packageName= "EdFi.Suite3.Ods.SwaggerUI"
+            version= "5.3"
+        }
+        packageInstallerDetails= @{
+            packageName= "EdFi.Suite3.Installer.SwaggerUI"
+            version= "5.3"
+        }
+    }
+.PARAMETER ApiUrl
+    Ed-Fi ODS Web API Web URL.
+.PARAMETER edfiSource
+    Ed-Fi nuget package feed source.
 #>
 function Install-EdFiSwagger(){
 	[CmdletBinding()]
 	param (
         # Path for storing installation tools
         [string]
-        [Parameter(Mandatory=$true)]
-        $toolsPath,
+        $toolsPath = "C:\\temp\\tools",
 
         # Path for storing downloaded packages
         [string]
-        [Parameter(Mandatory=$true)]
-        $downloadPath,
+        $downloadPath = "C:\\temp\\downloads",
 
         # Hashtable containing SwaggerUI settings and the installation directory
         [Hashtable]
         [Parameter(Mandatory=$true)]
         $swaggerUIConfig,
+
+        # Ed-Fi ODS Web API Web URL.
         [string]
         [Parameter(Mandatory=$true)]
         $ApiUrl,
-        [string] 
-        [Parameter(Mandatory=$true)]
-        $edfiSource
+
+        # Ed-Fi nuget package feed source.
+        [string]
+        $edfiSource="https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
     )
     
     $paths = @{

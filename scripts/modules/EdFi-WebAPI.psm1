@@ -16,9 +16,136 @@ Import-Module -Force "$PSScriptRoot\Tool-Helpers.psm1"
     Installs the Ed-Fi Web API.
 .DESCRIPTION
     Installs the Ed-Fi web API.
-.EXAMPLE
-    PS c:\> Install-EdFiAPI
+.PARAMETER webSiteName
+    IIS web site name
+.PARAMETER toolsPath
+    Path for storing installation tools
+.PARAMETER downloadPath
+    Path for storing downloaded packages
+.PARAMETER webApiConfig
+    Hashtable containing Web API settings and the installation directory
+    webApiConfig= @{
+        webApplicationName= "WebApi"
+        installationDirectory= "C:\\inetpub\\wwwroot\\Ed-Fi\\WebApi"
+        webApiAppSettings= @{
+            excludedExtensionSources= "Sample,Homograph"
+            extensions= "true"
+            profiles= "false"
+            openApiMetadata= "true"
+            aggregateDependencies= "true"
+            tokenInfo= "true"
+            composites= "true"
+            changeQueries= "true"
+            identityManagement= "false"
+            ownershipBasedAuthorization= "false"
+            uniqueIdValidation= "false"
+        }
+        packageDetails= @{
+            packageName= "EdFi.Suite3.Ods.WebApi"
+            version= "5.3"
+        }
+        packageInstallerDetails= @{
+            packageName= "EdFi.Suite3.Installer.WebApi"
+            version= "5.3"
+        }
+    }
+.PARAMETER databasesConfig
+    Hashtable containing information about the databases and its server
+    $databasesConfig= @{
+        applicationCredentials= @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        }
+        installCredentials= @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        }
+        engine                = "SQLServer"
+        databaseServer        = "localhost"
+        databasePort          = ""
+        adminDatabaseName     = "EdFi_Admin"
+        odsDatabaseName       = "EdFi_Ods"
+        securityDatabaseName  = "EdFi_Security"
+        apiMode               = "sharedinstance"
+    }
+.PARAMETER edfiSource
+    Ed-Fi nuget package feed source.
 #>
+function Install-EdFiAPI(){
+	[CmdletBinding()]
+	param (
+        # IIS web site name
+        [string]
+        $webSiteName = "Ed-Fi",
+
+        # Path for storing installation tools
+        [string]
+        $toolsPath = "C:\\temp\\tools",
+
+        # Path for storing downloaded packages
+        [string]
+        $downloadPath = "C:\\temp\\downloads",
+
+        # Hashtable containing Web API settings and the installation directory
+        [Hashtable]
+        [Parameter(Mandatory=$true)]
+        $webApiConfig,
+
+        # Hashtable containing information about the databases and its server
+        [Hashtable]
+        [Parameter(Mandatory=$true)]
+        $databasesConfig,
+
+        # Ed-Fi nuget package feed source..
+        [string]
+        $edfiSource="https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
+	)
+    $packageDetails = @{
+        packageName = "$($webApiConfig.packageInstallerDetails.packageName)"
+        version     = "$($webApiConfig.packageInstallerDetails.version)"
+        toolsPath    = $toolsPath
+        downloadPath = $downloadPath
+        edfiSource   = $edfiSource
+    }
+    Write-Host "---" -ForegroundColor Magenta
+    Write-Host "Ed-Fi Web API module process starting..." -ForegroundColor Magenta
+
+	# Temporary fix for solving the path-resolver.psm1 missing module error. Can be reworked once #ODS-4535 resolved.
+	$pathResolverModule = "path-resolver"
+	if ((Get-Module | Where-Object -Property Name -eq $pathResolverModule))
+	{
+		Remove-Module $pathResolverModule
+	}
+    Write-Host "EdFi Package ($($webApiConfig.packageInstallerDetails.packageName))-$($webApiConfig.packageInstallerDetails.version)..." -ForegroundColor Cyan
+	$packagePath = Install-EdFiPackage @packageDetails
+
+	Write-Host "Starting installation..." -ForegroundColor Cyan
+
+    $parameters = New-WebApiParameters $webApiConfig $databasesConfig $toolsPath $downloadPath $edfiSource
+
+    $parameters.WebSiteName = $webSiteName
+
+    Import-Module -Force "$packagePath\Install-EdFiOdsWebApi.psm1"
+
+    Install-EdFiOdsWebApi @parameters
+    # IIS-Components.psm1 must be imported after the IIS-WebServerManagementTools
+    # windows feature has been enabled. This feature is enabled during Install-WebApi
+    # by the AppCommon library.
+    try{        
+        Import-Module -Force "$packagePath\AppCommon\IIS\IIS-Components.psm1"
+        $portNumber = IIS-Components\Get-PortNumber $WebRoot
+
+        $expectedWebApiBaseUri = "https://$($env:computername):$($portNumber)/$($webApiConfig.webApplicationName)"
+        Write-Host "Setting API URL..."
+        Set-ApiUrl $expectedWebApiBaseUri
+        Write-Host "Setting API URL Continue..."
+    }catch{
+        Write-Host "Skipped $webApiAppCommon"
+    }
+    return $packagePath
+}
 
 function New-WebApiParameters {
     param (
@@ -70,82 +197,6 @@ function New-WebApiParameters {
         DbConnectionInfo = $dbConnectionInfo
         WebApiFeatures = $webApiFeatures
     }
-}
-
-function Install-EdFiAPI(){
-	[CmdletBinding()]
-	param (
-        # IIS web site name
-        [string]
-        [Parameter(Mandatory=$true)]
-        $webSiteName,
-
-        # Path for storing installation tools
-        [string]
-        [Parameter(Mandatory=$true)]
-        $toolsPath,
-
-        # Path for storing downloaded packages
-        [string]
-        [Parameter(Mandatory=$true)]
-        $downloadPath,
-
-        # Hashtable containing Web API settings and the installation directory
-        [Hashtable]
-        [Parameter(Mandatory=$true)]
-        $webApiConfig,
-
-        # Hashtable containing information about the databases and its server
-        [Hashtable]
-        [Parameter(Mandatory=$true)]
-        $databasesConfig,
-        [Parameter(Mandatory=$true)]
-        $edfiSource
-	)
-    $packageDetails = @{
-        packageName = "$($webApiConfig.packageInstallerDetails.packageName)"
-        version = "$($webApiConfig.packageInstallerDetails.version)"
-        toolsPath    = $toolsPath
-        downloadPath = $downloadPath
-        edfiSource   = $edfiSource
-    }
-    Write-Host "---" -ForegroundColor Magenta
-    Write-Host "Ed-Fi Web API module process starting..." -ForegroundColor Magenta
-
-	# Temporary fix for solving the path-resolver.psm1 missing module error. Can be reworked once #ODS-4535 resolved.
-	$pathResolverModule = "path-resolver"
-	if ((Get-Module | Where-Object -Property Name -eq $pathResolverModule))
-	{
-		Remove-Module $pathResolverModule
-	}
-    Write-Host "EdFi Package ($($webApiConfig.packageInstallerDetails.packageName))-$($webApiConfig.packageInstallerDetails.version)..." -ForegroundColor Cyan
-	$packagePath = Install-EdFiPackage @packageDetails
-
-	Write-Host "Starting installation..." -ForegroundColor Cyan
-
-    $parameters = New-WebApiParameters $webApiConfig $databasesConfig $toolsPath $downloadPath $edfiSource
-
-    $parameters.WebSiteName = $webSiteName
-
-    Import-Module -Force "$packagePath\Install-EdFiOdsWebApi.psm1"
-write-host "****edfiods install"
-    Install-EdFiOdsWebApi @parameters
-    # IIS-Components.psm1 must be imported after the IIS-WebServerManagementTools
-    # windows feature has been enabled. This feature is enabled during Install-WebApi
-    # by the AppCommon library.
-    try{
-        Write-Host "********$installerPath****** $dirx*"
-        Import-Module -Force Join-Path "$packagePath\AppCommon\IIS\IIS-Components.psm1"
-        $portNumber = IIS-Components\Get-PortNumber $WebRoot
-
-        $expectedWebApiBaseUri = "https://$($env:computername):$($portNumber)/$($webApiConfig.webApplicationName)"
-        Write-Host "Setting API URL..."
-        Set-ApiUrl $expectedWebApiBaseUri
-        Write-Host "Setting API URL Continue..."
-    }catch{
-        Write-Host "Skipped $webApiAppCommon"
-    }
-    return $packagePath
 }
 
 Export-ModuleMember Install-EdFiAPI

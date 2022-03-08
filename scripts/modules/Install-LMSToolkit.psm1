@@ -7,77 +7,76 @@
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1" -Force
-function New-EnvFile {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$True, ValueFromPipeline = $true)]
-        [string]
-        $Contents,
 
-        [Parameter(Mandatory=$True)]
-        [string]
-        $Directory
-    )
-
-    $Contents | Out-File "$Directory/.env" -Encoding ascii
-}
-
-function Install-LMSSampleData {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$True)]
-        [string]
-        $LmsDirectory
-    )
-
-    try {
-        Push-Location -Path "$LmsDirectory/src/lms-ds-loader"
-        &poetry install
-
-        # Upload sample LMS data into the `lms` schema
-        &poetry run python ./edfi_lms_ds_loader/ `
-            --csvpath (Resolve-Path -Path "../../docs/starter-kit-sample")
+<#
+.SYNOPSIS
+    Installs the Ed-Fi LMSToolkit.
+.DESCRIPTION
+    Installs the Ed-Fi LMSToolkit.
+.PARAMETER webSiteName
+    IIS web site name.
+.PARAMETER downloadPath
+    Path for storing downloaded packages.
+.PARAMETER InstallDir
+    Installation directory.
+.PARAMETER lmsToolkitConfig
+    Hashtable containing lmsToolkit settings and the installation directory
+    $lmsToolkit= @{
+        installationDirectory= "C:\\Ed-Fi\\"
+        webRootFolder= "c:\\inetpub\\Ed-Fi"
+        pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
+        packageDetails = @{
+            packageURL  = "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
+            version     = "main"
+        }
+        sampleData= @{
+            key= "dfghjkl34567"
+            secret= "4eryftgjh-pok%^K`$E%RTYG"
+        }
     }
-    catch {throw}
-    finally {
-        Pop-Location
+.PARAMETER databasesConfig
+    Hashtable containing information about the databases and its server
+    $databasesConfig= @{
+        applicationCredentials= @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        }
+        installCredentials= @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        }
+        engine                = "SQLServer"
+        databaseServer        = "localhost"
+        databasePort          = ""
+        adminDatabaseName     = "EdFi_Admin"
+        odsDatabaseName       = "EdFi_Ods"
+        securityDatabaseName  = "EdFi_Security"
+        apiMode               = "sharedinstance"
     }
-
-    Test-ExitCode
-
-    # Copy assignment information into the `lmsx` schema
-    try {
-        Push-Location -Path "$LmsDirectory/src/lms-harmonizer"
-        &poetry install
-        &poetry run python ./edfi_lms_harmonizer/
-    }
-    catch {throw}
-    finally {
-        Pop-Location
-    }
-
-    Test-ExitCode
-}
-
+#>
 function Install-LMSToolkit {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$True)]
         [string]
-        $DownloadPath,
-
-        [Parameter(Mandatory=$True)]
+        $DownloadPath= "C:\\temp\\downloads",
+        
         [string]
-        $InstallDir,
+        $InstallDir =  "C:\\Ed-Fi\\",
+        
+        # Hashtable containing information about the lmsToolkit.
         [Parameter(Mandatory=$True)]
         [Hashtable]
         $lmsToolkitConfig,
+        
+        # Hashtable containing information about the databases and its server.
         [Parameter(Mandatory=$True)]
         [Hashtable]
         $databasesConfig
     )
     
-    $BranchOrTag = "$($lmsToolkitConfig.version)"
+    $BranchOrTag = "$($lmsToolkitConfig.packageDetails.version)"
 
     $DatabaseServer = "$($databasesConfig.databaseServer)"
 
@@ -93,12 +92,12 @@ function Install-LMSToolkit {
     $lmsZip = "$DownloadPath/lms-toolkit.zip"
     try {
         # ... first assume that a branch name was given
-        $url = "$($lmsToolkitConfig.packageURL)/archive/refs/heads/$BranchOrTag.zip"
+        $url = "$($lmsToolkitConfig.packageDetails.packageURL)/archive/refs/heads/$BranchOrTag.zip"
         Invoke-RestMethod -Uri $url -OutFile $lmsZip
     }
     catch {
         # ... now try treating as a tag instead, and if it fails, let it bubble up
-        $url = "$($lmsToolkitConfig.packageURL)/archive/refs/tags/$BranchOrTag.zip"
+        $url = "$($lmsToolkitConfig.packageDetails.packageURL)/archive/refs/tags/$BranchOrTag.zip"
         Invoke-RestMethod -Uri $url -OutFile $lmsZip
     }
 
@@ -166,8 +165,6 @@ USE_INTEGRATED_SECURITY="True"
 EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
 "@ | New-EnvFile -Directory "$lmsDirectory/src/lms-harmonizer"
 }
-    
-
     # Run the LMS DS Loader to create the `lms` schema tables
     try {
         Push-Location -Path "$lmsDirectory/src/lms-ds-loader"
@@ -251,5 +248,59 @@ EXCEPTIONS_REPORT_DIRECTORY=$InstallDir/lms-data/harmonizer-exceptions
         Pop-Location
     }
 }
+
+function New-EnvFile {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True, ValueFromPipeline = $true)]
+        [string]
+        $Contents,
+
+        [Parameter(Mandatory=$True)]
+        [string]
+        $Directory
+    )
+
+    $Contents | Out-File "$Directory/.env" -Encoding ascii
+}
+
+function Install-LMSSampleData {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True)]
+        [string]
+        $LmsDirectory
+    )
+
+    try {
+        Push-Location -Path "$LmsDirectory/src/lms-ds-loader"
+        &poetry install
+
+        # Upload sample LMS data into the `lms` schema
+        &poetry run python ./edfi_lms_ds_loader/ `
+            --csvpath (Resolve-Path -Path "../../docs/starter-kit-sample")
+    }
+    catch {throw}
+    finally {
+        Pop-Location
+    }
+
+    Test-ExitCode
+
+    # Copy assignment information into the `lmsx` schema
+    try {
+        Push-Location -Path "$LmsDirectory/src/lms-harmonizer"
+        &poetry install
+        &poetry run python ./edfi_lms_harmonizer/
+    }
+    catch {throw}
+    finally {
+        Pop-Location
+    }
+
+    Test-ExitCode
+}
+
+
 
 Export-ModuleMember *

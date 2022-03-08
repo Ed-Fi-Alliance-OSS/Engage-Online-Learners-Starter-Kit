@@ -8,6 +8,208 @@ $amtUninstallArgumentList = "-c `"{0}`" -e {1} -u"
 $amtInstallArgumentList = "-c `"{0}`" -o {1} -e {2}"
 $amtConsoleApp = "EdFi.AnalyticsMiddleTier.Console.exe"
 
+
+function Install-AMT {
+    <#
+    .SYNOPSIS
+        Installs the Ed-Fi Analytics-Middle-Tier.
+
+    .DESCRIPTION
+        Installs the Ed-Fi Analytics-Middle-Tier using the configuration
+        values provided.
+    .PARAMETER amtConfig
+        Hashtable containing information about the AMT package and installation
+            $amtConfig= @{
+                amtDownloadPath         = "C:\\temp\\downloads",
+                amtInstallerPath        = "C:\\temp\\tools",
+                options                 = "EWS RLS Indexes Engage",
+                install_selfContained   = $true,
+                selfContainedOS         = "win10.x64",
+                packageDetails = @{
+                    packageName = "EdFi.AnalyticsMiddleTier",
+                    packageURL  = "https=//github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier",
+                    version     = "2.8.0"
+                }
+            }
+    .PARAMETER databasesConfig
+        Hashtable containing information about the databases and its server
+            $databasesConfig= @{
+                applicationCredentials= @{
+                    databaseUser            = ""
+                    databasePassword        = ""
+                    useIntegratedSecurity   = $true
+                }
+                installCredentials= @{
+                    databaseUser            = ""
+                    databasePassword        = ""
+                    useIntegratedSecurity   = $true
+                }
+                engine              = "SQLServer",
+                databaseServer        = "localhost",
+                databasePort          = "",
+                adminDatabaseName     = "EdFi_Admin",
+                odsDatabaseName       = "EdFi_Ods",
+                securityDatabaseName  = "EdFi_Security"
+                apiMode               = "sharedinstance"
+            }
+    #>
+    [CmdletBinding()]
+    param (
+        # Hashtable containing information about the AMT package and installation
+        [Parameter(Mandatory=$true)]
+        [Hashtable]        
+        $amtConfig,
+        # 
+        [Parameter(Mandatory=$true)]
+        [Hashtable]        
+        $databasesConfig
+    )
+    # Path for storing installation tools
+    $amtInstallerPath=$amtConfig.amtInstallerPath
+    $destinationName=Get-DestinationName $amtConfig
+    $paths = @{
+        amtPath = $amtInstallerPath
+        downloadPath = $amtConfig.amtDownloadPath
+        destinationName = $destinationName
+        amtConfig = $amtConfig
+    }
+
+    try {
+        $databaseEngine = if($databasesConfig.engine -ieq "SQLServer"){"mssql"}else{"postgres"}
+
+        Request-amt-Files @paths
+
+        Expand-amt-Files @paths
+
+        $connectionString = New-amt-ConnectionString $databasesConfig
+    
+        $consoleInstaller = Join-Path (Join-Path $amtInstallerPath $destinationName) $amtConsoleApp
+        
+        Start-Process -NoNewWindow -FilePath $consoleInstaller -ArgumentList ($amtInstallArgumentList -f $connectionString, $amtConfig.options, $databaseEngine)
+    }
+    catch {
+        Write-Host $_
+        throw $_
+    }
+}
+
+function Uninstall-AMT {
+    <#
+    .SYNOPSIS
+        Uninstalls the Ed-Fi Analytics Middle Tier Views.
+
+    .DESCRIPTION
+        Uninstalls the Ed-Fi Analytics Middle Tier Views using the configuration
+        values provided.
+
+    .PARAMETER amtInstallerPath
+        Path to the AMT installer.
+    .PARAMETER amtConfig
+        Hashtable containing information about the AMT package and installation
+            $amtConfig= @{
+                amtDownloadPath         = "C:\\temp\\downloads",
+                amtInstallerPath        = "C:\\temp\\tools",
+                options                 = "EWS RLS Indexes Engage",
+                install_selfContained   = $true,
+                selfContainedOS         = "win10.x64",
+                packageDetails = @{
+                    packageName = "EdFi.AnalyticsMiddleTier",
+                    packageURL  = "https=//github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier",
+                    version     = "2.8.0"
+                }
+            }
+    .PARAMETER databasesConfig
+        Hashtable containing information about the databases and its server
+            $databasesConfig= @{
+                applicationCredentials= @{
+                    databaseUser            = ""
+                    databasePassword        = ""
+                    useIntegratedSecurity   = $true
+                }
+                installCredentials= @{
+                    databaseUser            = ""
+                    databasePassword        = ""
+                    useIntegratedSecurity   = $true
+                }
+                engine              = "SQLServer",
+                databaseServer        = "localhost",
+                databasePort          = "",
+                adminDatabaseName     = "EdFi_Admin",
+                odsDatabaseName       = "EdFi_Ods",
+                securityDatabaseName  = "EdFi_Security"
+                apiMode               = "sharedinstance"
+            }
+    .EXAMPLE
+        Installs the Analytics-Middle-Tier
+
+        PS c:\> $amtConfig= @{
+            amtInstallerPath        = "C:\\temp\\tools"
+            amtDownloadPath         = "C:\\temp\\downloads"
+            options                 = "EWS RLS Indexes Engage"
+            install_selfContained   = $true
+            selfContainedOS         = "win10.x64"
+            packageDetails = @{
+                packageName = "EdFi.AnalyticsMiddleTier"
+                packageURL  = "https=//github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
+                version     = "2.8.0"
+            }
+        }
+        PS c:\> $databasesConfig = $databasesConfig= @{
+                applicationCredentials= @{
+                    databaseUser            = ""
+                    databasePassword        = ""
+                    useIntegratedSecurity   = $true
+                }
+                installCredentials= @{
+                    databaseUser            = ""
+                    databasePassword        = ""
+                    useIntegratedSecurity   = $true
+                }
+                engine              = "SQLServer",
+                databaseServer        = "localhost",
+                databasePort          = "",
+                adminDatabaseName     = "EdFi_Admin",
+                odsDatabaseName       = "EdFi_Ods",
+                securityDatabaseName  = "EdFi_Security"
+                apiMode               = "sharedinstance"
+            }
+    #>
+    [CmdletBinding()]
+    param (
+        # Hashtable containing information about the databases and its server
+        [Parameter(Mandatory=$true)]
+        [Hashtable]        
+        $databasesConfig,
+        [Parameter(Mandatory=$true)]
+        [Hashtable]
+        $amtConfig
+    )
+    $amtInstallerPath=$amtConfig.amtInstallerPath
+    $destinationName=Get-DestinationName $amtConfig
+    $paths = @{
+        amtPath = $amtInstallerPath
+        downloadPath = $amtConfig.amtDownloadPath
+        destinationName = $destinationName
+        amtConfig = $amtConfig
+    }
+    try{
+        $databaseEngine = if($databasesConfig.engine -ieq "SQLServer"){"mssql"}else{"postgres"}
+        
+        Request-amt-Files @packageDetails @paths
+
+        Expand-amt-Files @packageDetails @paths
+
+        $connectionString = New-amt-ConnectionString $databasesConfig
+    
+        $consoleInstaller = Join-Path (Join-Path $amtInstallerPath $destinationName) $amtConsoleApp
+        
+        Start-Process -NoNewWindow -Wait -FilePath $consoleInstaller -ArgumentList ($amtUninstallArgumentList -f $connectionString, $databaseEngine)
+    }
+    catch {
+        Write-Host $_
+        throw $_
+    }    
+}
 function Request-amt-Files{
     param (
         [string]$amtPath = "C:\temp\",
@@ -59,6 +261,10 @@ function Expand-amt-Files {
 }
 
 function New-amt-ConnectionString{
+<#
+.SYNOPSIS
+    Creates a new connection string based on database configuration.
+#>
     param (
         $databaseInfo
     )
@@ -78,130 +284,24 @@ function New-amt-ConnectionString{
     }
 }
 function Get-DestinationName{
+<#
+.SYNOPSIS
+    Function to get the destination folder for the AMT files.
+
+.DESCRIPTION
+    Returns a destination folder to extract the AMT files.
+#>
     param(
-    [Hashtable]
-    [Parameter(Mandatory=$true)]
-    $amtConfig)
+        [Hashtable]
+        [Parameter(Mandatory=$true)]
+        $amtConfig
+    )
     If ($amtConfig.install_selfContained) {
         return "$($amtConfig.packageDetails.packageName)-$($amtConfig.selfContainedOS)-$($amtConfig.packageDetails.version)"
     }
     Else {
         return "$($amtConfig.packageDetails.packageName)-$($amtConfig.packageDetails.version)"
     } 
-}
-function Install-AMT {
-    <#
-    .SYNOPSIS
-        Installs the Ed-Fi Analytics-Middle-Tier.
-
-    .DESCRIPTION
-        Installs the Ed-Fi Analytics-Middle-Tier using the configuration
-        values provided.
-
-    .EXAMPLE
-        Installs the Analytics-Middle-Tier
-
-        PS c:\> $amtInstallerPath = "C:/temp/tools/amt"
-        PS c:\> $amtDownloadPath = "C:/temp/downloads/amt"
-        PS c:\> $databasesConfig = @{}
-        PS c:\> $amtOptions = "indexes rls qews ews chrab asmt"
-    #>
-    [CmdletBinding()]
-    param (
-        # Path for storing installation tools
-        [string]
-        [Parameter(Mandatory=$true)]
-        $amtInstallerPath,
-
-        [Hashtable]
-        [Parameter(Mandatory=$true)]
-        $amtConfig,
-        [Hashtable]
-        [Parameter(Mandatory=$true)]
-        $databasesConfig
-    )
-    $destinationName=Get-DestinationName $amtConfig
-    $paths = @{
-        amtPath = $amtInstallerPath
-        downloadPath = $amtConfig.amtDownloadPath
-        destinationName = $destinationName
-        amtConfig = $amtConfig
-    }
-
-    try {
-        $databaseEngine = if($databasesConfig.engine -ieq "SQLServer"){"mssql"}else{"postgres"}
-
-        Request-amt-Files @paths
-
-        Expand-amt-Files @paths
-
-        $connectionString = New-amt-ConnectionString $databasesConfig
-    
-        $consoleInstaller = Join-Path (Join-Path $amtInstallerPath $destinationName) $amtConsoleApp
-        
-        Start-Process -NoNewWindow -FilePath $consoleInstaller -ArgumentList ($amtInstallArgumentList -f $connectionString, $amtConfig.options, $databaseEngine)
-    }
-    catch {
-        Write-Host $_
-        throw $_
-    }
-}
-
-function Uninstall-AMT {
-    <#
-    .SYNOPSIS
-        Uninstalls the Ed-Fi Analytics Middle Tier Views.
-
-    .DESCRIPTION
-        Uninstalls the Ed-Fi Analytics Middle Tier Views using the configuration
-        values provided.
-
-    .EXAMPLE
-        Uninstalls the Ed-Fi Analytics Middle Tier Views
-
-        PS c:\> $amtInstallerPath = "C:/temp/tools/amt"
-        PS c:\> $amtDownloadPath = "C:/temp/downloads/amt"
-        PS c:\> $databasesConfig = @{}
-        PS c:\> $amtOptions = "indexes rls qews ews chrab asmt"
-    #>
-    [CmdletBinding()]
-    param (
-        [string]
-        [Parameter(Mandatory=$true)]
-        $amtInstallerPath,
-        # Hashtable containing information about the databases and its server
-        [Hashtable]
-        [Parameter(Mandatory=$true)]
-        $databasesConfig,
-
-        [Hashtable]
-        [Parameter(Mandatory=$true)]
-        $amtConfig
-    )
-    $destinationName=Get-DestinationName $amtConfig
-    $paths = @{
-        amtPath = $amtInstallerPath
-        downloadPath = $amtConfig.amtDownloadPath
-        destinationName = $destinationName
-        amtConfig = $amtConfig
-    }
-    try{
-        $databaseEngine = if($databasesConfig.engine -ieq "SQLServer"){"mssql"}else{"postgres"}
-        
-        Request-amt-Files @packageDetails @paths
-
-        Expand-amt-Files @packageDetails @paths
-
-        $connectionString = New-amt-ConnectionString $databasesConfig
-    
-        $consoleInstaller = Join-Path (Join-Path $amtInstallerPath $destinationName) $amtConsoleApp
-        
-        Start-Process -NoNewWindow -Wait -FilePath $consoleInstaller -ArgumentList ($amtUninstallArgumentList -f $connectionString, $databaseEngine)
-    }
-    catch {
-        Write-Host $_
-        throw $_
-    }    
 }
 
 Export-ModuleMember Install-AMT, Uninstall-AMT

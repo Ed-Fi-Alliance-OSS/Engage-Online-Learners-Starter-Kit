@@ -5,6 +5,9 @@
 
 #Requires -Version 5
 #Requires -RunAsAdministrator
+
+# Load default values from json config file.
+
 <#
     .SYNOPSIS
     Installs Ed-Fi branding and other components required for a
@@ -22,15 +25,23 @@
     Assumes that you have already downloaded and installed the LMS Toolkit
 #>
 param (
+    [string]
+    $configPath = "$PSScriptRoot\configuration.json",
+
+    # Hashtable containing LMS Toolkit settings and installation directory.
     [Parameter(Mandatory=$True)]
     [Hashtable]
     $lmsToolkitConfig,
+    
+    # Hashtable containing information about the databases and its server.
     [Parameter(Mandatory=$True)]
     [Hashtable]
     $databasesConfig,
+    
     [Parameter(Mandatory=$True)]
     [string]
     $ApiUrl,
+    
     # Temporary directory for downloaded components.
     [string]
     $ToolsPath = "$PSScriptRoot/.tools",
@@ -56,6 +67,16 @@ $ErrorActionPreference = "Stop"
 Import-Module -Name "$PSScriptRoot/modules/Tool-Helpers.psm1" -Force
 Import-Module -Name "$PSScriptRoot/modules/Install-LMSToolkit.psm1" -Force
 Import-Module -Name "$PSScriptRoot/modules/Install-AdditionalSampleData.psm1" -Force
+Import-Module -Force "$PSScriptRoot\confighelper.psm1"
+
+$configuration = Format-ConfigurationFileToHashTable $configPath
+
+if(-not $databasesConfig){
+    $databasesConfig= $configuration.databasesConfig
+}
+if(-not $lmsToolkitConfig){
+    $lmsToolkitConfig= $configuration.lmsToolkitConfig
+}
 function Install-LandingPage {
     Write-Host "Installing the landing page"
     Copy-Item -Path "$PSScriptRoot/../vm-docs/*" -Destination $WebRoot

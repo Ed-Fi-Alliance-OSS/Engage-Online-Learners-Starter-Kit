@@ -4,8 +4,6 @@
 # See the LICENSE and NOTICES files in the project root for more information.
 
 #Requires -Version 5
-# Requires -RunAsAdministrator
-
 $ErrorActionPreference = "Stop"
 
 Import-Module -Name "$PSScriptRoot/Tool-Helpers.psm1"
@@ -16,34 +14,70 @@ Import-Module -Force "$PSScriptRoot\nuget-helper.psm1"
     Installs the Ed-Fi Databases.
 .DESCRIPTION
     Installs the Ed-Fi Databases.
-.EXAMPLE
-    PS c:\> Install-EdFiDbs
+.PARAMETER toolsPath
+    Path for storing installation tools.
+.PARAMETER downloadPath
+    Path for storing downloaded packages.
+.PARAMETER databasesConfig
+    Hashtable containing information about the databases and its server.
+
+    $databasesConfig= @{
+        applicationCredentials = @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        },
+        installCredentials = @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        },
+        engine              = "SQLServer"
+        databaseServer      = "localhost"
+        databasePort        = ""
+        adminDatabaseName   = "EdFi_Admin"
+        odsDatabaseName     = "EdFi_Ods"
+        securityDatabaseName= "EdFi_Security"
+        useTemplates        = $false
+        noDuration          = $false
+        dropDatabases       = $true
+        apiMode             = "sharedinstance"
+        odsDatabaseTemplateName = "populated"
+        minimalTemplateSuffix   ="Ods_Minimal_Template"
+        populatedTemplateSuffix ="Ods"
+        populatedTemplateScript = "GrandBend"
+        addAdminUser        = $false
+        dbAdminUser         = "edfi",
+        dbAdminUserPassword = "edfi",
+        packageDetails= @{
+            packageName = "EdFi.Suite3.RestApi.Databases"
+            version     = "5.3"
+        }
+    }
+.PARAMETER timeTravelScriptPath
+    Time Travel Script file path.
+.PARAMETER edfiSource
+    Ed-Fi nuget package feed source.
 #>
-
-function SetValue($object, $key, $Value)
-{
-    $p1,$p2 = $key.Split(".")
-    if($p2) { SetValue -object $object.$p1 -key $p2 -Value $Value }
-    else { return $object.$p1 = $Value }
-}
-
 function Install-EdFiDbs() {
     [CmdletBinding()]
     param (
-        [string]
-        [Parameter(Mandatory = $true)]
-        [string] $toolsPath,
-        [string]
-        [Parameter(Mandatory = $true)]
-        [string] $downloadPath,
-        [Hashtable]
+        # Path for storing installation tools
+        [string] $toolsPath="C:\\temp\\tools",
+        
+        # Path for storing downloaded packages
+        [string] $downloadPath="C:\\temp\\downloads",
+
+        # Hashtable containing information about the databases and its server.
         [Parameter(Mandatory = $true)]
         [Hashtable] $databasesConfig,
-        [Parameter(Mandatory = $true)]
+        
+        # Time Travel Script file path
         [string] $timeTravelScriptPath,
-        [Parameter(Mandatory=$True)]
+        
+        # Ed-Fi nuget package feed source.
         [string]
-        $edfiSource
+        $edfiSource="https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json"
     )
 
     Write-Host "---" -ForegroundColor Magenta
@@ -133,19 +167,28 @@ function Install-EdFiDbs() {
         SetValue -object $json -key "ConnectionStrings.EdFi_Admin" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($databasesConfig.adminDatabaseName);Application Name=EdFi.Ods.WebApi"
         SetValue -object $json -key "ConnectionStrings.EdFi_Master" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=master;Application Name=EdFi.Ods.WebApi"
     }
-    
-    SetValue -object $json -key "ApiSettings.Mode" -value "$($databasesConfig.apiMode)"
-    SetValue -object $json -key "ApiSettings.Engine" -value "$($databasesConfig.engine)"
-    SetValue -object $json -key "ApiSettings.OdsDatabaseTemplateName" -value "$($databasesConfig.odsDatabaseTemplateName)"
+    if($databasesConfig.odsApi.apiMode){
+        SetValue -object $json -key "ApiSettings.Mode" -value "$($databasesConfig.apiMode)"
+    }
+    if($databasesConfig.odsApi.engine){
+        SetValue -object $json -key "ApiSettings.Engine" -value "$($databasesConfig.engine)"
+    }
+    if($databasesConfig.odsApi.odsDatabaseTemplateName){
+        SetValue -object $json -key "ApiSettings.OdsDatabaseTemplateName" -value "$($databasesConfig.odsDatabaseTemplateName)"
+    }
     SetValue -object $json -key "ApiSettings.DropDatabases" -value "$($dropDatabases)"
-    
-    SetValue -object $json -key "ApiSettings.MinimalTemplateSuffix" -value "$($databasesConfig.minimalTemplateSuffix)"
-    #SetValue -object $json -key "ApiSettings._PopulatedTemplateSuffix" -value "$($databasesConfig._populatedTemplateSuffix)"
-    SetValue -object $json -key "ApiSettings.PopulatedTemplateSuffix" -value "$($databasesConfig.populatedTemplateSuffix)"
-
-    SetValue -object $json -key "ApiSettings.MinimalTemplateScript" -value "$($databasesConfig.minimalTemplateScript)"
-    SetValue -object $json -key "ApiSettings.PopulatedTemplateScript" -value "$($databasesConfig.populatedTemplateScript)"
-    #SetValue -object $json -key "ApiSettings._PopulatedTemplateScript" -value "$($databasesConfig._populatedTemplateScript)"
+    if($databasesConfig.odsApi.minimalTemplateSuffix){
+        SetValue -object $json -key "ApiSettings.MinimalTemplateSuffix" -value "$($databasesConfig.minimalTemplateSuffix)"
+    }
+    if($databasesConfig.populatedTemplateSuffix){
+        SetValue -object $json -key "ApiSettings.PopulatedTemplateSuffix" -value "$($databasesConfig.populatedTemplateSuffix)"
+    }
+    if($databasesConfig.minimalTemplateScript){
+        SetValue -object $json -key "ApiSettings.MinimalTemplateScript" -value "$($databasesConfig.minimalTemplateScript)"
+    }
+    if($databasesConfig.populatedTemplateScript){
+        SetValue -object $json -key "ApiSettings.PopulatedTemplateScript" -value "$($databasesConfig.populatedTemplateScript)"
+    }
     
     $json | ConvertTo-Json | Out-File (Join-Path $EdFiRepositoryPath "configuration.json")
 
@@ -154,22 +197,27 @@ function Install-EdFiDbs() {
     # directory does not exist.
     New-Item -Path c:/plugin -Type Directory -Force | Out-Null
     
-
     Initialize-DeploymentEnvironment 
    
-   
-   # Initialize-DeploymentEnvironment -OdsDatabaseTemplateName "populated"
+    # Initialize-DeploymentEnvironment -OdsDatabaseTemplateName "populated"
     # Bring the years up to now instead of 2010-2011
-    $timeTravelDbConn = @{
-        FileName            = $timeTravelScriptPath
-        DatabaseServer      = $databasesConfig.databaseServer
-        DatabaseUserName    = $databasesConfig.installCredentials.databaseUser
-        DatabasePassword    = $databasesConfig.installCredentials.databasePassword
-        DatabaseName        = $databasesConfig.odsDatabaseName
+    if($timeTravelScriptPath){
+        $timeTravelDbConn = @{
+            FileName            = $timeTravelScriptPath
+            DatabaseServer      = $databasesConfig.databaseServer
+            DatabaseUserName    = $databasesConfig.installCredentials.databaseUser
+            DatabasePassword    = $databasesConfig.installCredentials.databasePassword
+            DatabaseName        = $databasesConfig.odsDatabaseName
+        }
+        Write-Host "Executing Time Travel script..."
+        Invoke-SqlCmdOnODS @timeTravelDbConn
     }
-    Write-Host "Executing Time Travel script..."
-    Invoke-SqlCmdOnODS @timeTravelDbConn
-    Write-Host "Time Travel script finished..."
 }
 
+function SetValue($object, $key, $Value)
+{
+    $p1,$p2 = $key.Split(".")
+    if($p2) { SetValue -object $object.$p1 -key $p2 -Value $Value }
+    else { return $object.$p1 = $Value }
+}
 Export-ModuleMember Install-EdFiDbs

@@ -160,10 +160,6 @@ function Install-Python {
     $value = "$value;$additions"
     [Environment]::SetEnvironmentVariable("PATH", $value, "Machine")
 
-    # Sometimes Python doesn't trust itself (SSL certificate), which is weird.
-    # This command helps:
-    pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip setuptools
-
     Stop-Transcript
 }
 
@@ -177,11 +173,18 @@ function Install-Poetry {
 
     Start-Transcript -Path $LogFile -Append
 
-    (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/1.1/get-poetry.py -UseBasicParsing).Content | python -
-    &refreshenv
+    # Poetry's native installation process encounters SSL errors
+    # in some environments. `pip install` is a reasonable alternative
+    # that has been shown to work in our situation.
+    &pip install --user poetry
 
-    $env:PATH = "$env:PATH;$env:USERPROFILE\.poetry\bin"
+    # Update local and global PATH variables
+    $addition = "$env:APPDATA\Python\Python39\Scripts\"
+    $env:PATH="$env:PATH;$addition"
 
+    $value = [Environment]::GetEnvironmentVariable("PATH", "Machine")
+    $value = "$value;$addition"
+    [Environment]::SetEnvironmentVariable("PATH", $value, "Machine")
     Stop-Transcript
 }
 

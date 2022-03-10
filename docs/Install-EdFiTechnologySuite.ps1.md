@@ -183,41 +183,6 @@ DontShow: False
 ### -databasesConfig
 
 Hashtable containing information about the databases and its server.
-  $databasesConfig = @{
-      installDatabases= $true
-      applicationCredentials= @{
-          databaseUser= ""
-          databasePassword= ""
-          useIntegratedSecurity= $true
-      }
-      installCredentials= @{
-          databaseUser= ""
-          databasePassword= ""
-          useIntegratedSecurity= $true
-      }
-      engine= "SQLServer"
-      databaseServer= "localhost"
-      databasePort= ""
-      adminDatabaseName= "EdFi_Admin"
-      odsDatabaseName= "EdFi_Ods"
-      securityDatabaseName= "EdFi_Security"
-      useTemplates= $false
-      noDuration= $false
-      dropDatabases= $true
-      apiMode= "sharedinstance"
-      odsDatabaseTemplateName= "populated"
-      useIntegratedSecurity= $true,
-      minimalTemplateSuffix="Ods_Minimal_Template"
-      populatedTemplateSuffix="Ods"
-      populatedTemplateScript= "GrandBend"
-      addAdminUser= $false,
-      dbAdminUser= "edfi"
-      dbAdminUserPassword= "edfi"
-      packageDetails= @{
-          packageName= "EdFi.Suite3.RestApi.Databases"
-          version= "5.3"
-      }
-  }
 
 ```yaml
 Type: Hashtable
@@ -270,21 +235,7 @@ DontShow: False
 ### -adminAppConfig
 
 Hashtable containing Admin App settings and the installation directory.
-  $adminAppConfig = @{
-    installAdminApp= $true
-    appStartUp= "OnPrem"
-    odsApi= @{
-        apiUrl= ""
-    }
-    packageDetails= @{
-      packageName= "EdFi.Suite3.ODS.AdminApp.Web"
-      version= "2.3"
-    }
-    packageInstallerDetails= @{
-        packageName= "EdFi.Suite3.Installer.AdminApp"
-        version= "2.3"
-    }
-  }
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -315,31 +266,7 @@ DontShow: False
 ### -webApiConfig
 
 Hashtable containing Web API settings and the installation directory.
-  $webApiConfig= @{
-    installWebApi= $true
-    webApplicationName= "WebApi"
-    webApiAppSettings= @{
-        excludedExtensionSources= "Sample,Homograph"
-        extensions= "true"
-        profiles= "false"
-        openApiMetadata= "true"
-        aggregateDependencies= "true"
-        tokenInfo= "true"
-        composites= "true"
-        changeQueries= "true"
-        identityManagement= "false"
-        ownershipBasedAuthorization= "false"
-        uniqueIdValidation= "false"
-    }
-    packageDetails= @{
-        packageName= "EdFi.Suite3.Ods.WebApi"
-        version= "5.3"
-    }
-    packageInstallerDetails= @{
-        packageName= "EdFi.Suite3.Installer.WebApi"
-        version= "5.3"
-    }
-  }
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -380,22 +307,7 @@ DontShow: False
 ### -swaggerUIConfig
 
 Hashtable containing SwaggerUI settings and the installation directory.
-  $swaggerUIConfig= @{
-    installSwaggerUI= $true
-    WebApplicationName= "SwaggerUI"
-    swaggerAppSettings= @{
-        apiMetadataUrl= ""
-        apiVersionUrl= ""
-    }
-    packageDetails= @{
-        packageName= "EdFi.Suite3.Ods.SwaggerUI"
-        version= "5.3"
-    }
-    packageInstallerDetails= @{
-        packageName= "EdFi.Suite3.Installer.SwaggerUI"
-        version= "5.3"
-    }
-  }
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -427,19 +339,7 @@ DontShow: False
 ### -amtConfig
 
 Hashtable containing AMT settings and installation directory.
-  $amtConfig= @{
-    installAMT= $true
-    amtDownloadPath= "C:\\temp\\downloads"
-    amtInstallerPath= "C:\\temp\\tools"
-    options= "EWS RLS Indexes Engage"
-    install_selfContained= "true"
-    selfContainedOS= "win10.x64"
-    packageDetails= @{
-        packageName= "EdFi.AnalyticsMiddleTier"
-        packageURL= "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
-        version= "2.8.0"
-    }
-  }
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -468,18 +368,6 @@ DontShow: False
 ### -bulkLoadClientConfig
 
 Hashtable containing Bulk Load Client settings and installation directory.
-  $bulkLoadClientConfig= @{
-      installBulkLoadClient= $true
-      installationDirectory= "C:\\Ed-Fi\\Bulk-Load-Client"
-      packageDetails= @{
-          packageName= "EdFi.Suite3.BulkLoadClient.Console"
-          version= "5.3"
-      }
-      packageODSSchema52Details={
-          packageURL= "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/"
-          version= "5.2"
-      }
-  }
 
 ```yaml
 Type: Hashtable
@@ -508,20 +396,7 @@ DontShow: False
 ### -lmsToolkitConfig
 
 Hashtable containing LMS Toolkit settings and installation directory.
-  $lmsToolkitConfig= @{
-      installLMSToolkit= $true
-      installationDirectory= "C:\\Ed-Fi\\"
-      webRootFolder= "c:\\inetpub\\Ed-Fi"
-      pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
-      packageDetails= @{
-          packageURL= "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
-          version= "main"
-      }     
-      sampleData= @{
-          key= "dfghjkl34567"
-          secret= "4eryftgjh-pok%^K`$E%RTYG"
-      }
-  }
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)

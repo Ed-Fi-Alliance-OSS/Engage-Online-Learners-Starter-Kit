@@ -67,15 +67,7 @@ DontShow: False
 ### -lmsToolkitConfig
 
 Hashtable containing LMS Toolkit settings and installation directory.
-  $lmsToolkitConfig= @{
-      installationDirectory= "C:\\Ed-Fi\\"
-      webRootFolder= "c:\\inetpub\\Ed-Fi"
-      pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
-      sampleData= @{
-          key= "dfghjkl34567"
-          secret= "4eryftgjh-pok%^K```$E%RTYG"
-      }
-  }
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -101,25 +93,6 @@ DontShow: False
 ### -databasesConfig
 
 Hashtable containing information about the databases and its server.
-  $databasesConfig = @{
-      installDatabases= $true,
-      applicationCredentials= @{
-          databaseUser= ""
-          databasePassword= ""
-          useIntegratedSecurity= $true
-      }
-      installCredentials= @{
-          databaseUser= ""
-          databasePassword= ""
-          useIntegratedSecurity= $true
-      }
-      engine= "SQLServer"
-      databaseServer= "localhost"
-      databasePort= ""
-      adminDatabaseName= "EdFi_Admin"
-      odsDatabaseName= "EdFi_Ods"
-      securityDatabaseName= "EdFi_Security"
-  }
 
 ```yaml
 Type: Hashtable

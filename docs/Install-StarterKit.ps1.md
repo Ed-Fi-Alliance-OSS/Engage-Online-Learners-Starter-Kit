@@ -73,7 +73,7 @@ Hashtable containing LMS Toolkit settings and installation directory.
       pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
       sampleData= @{
           key= "dfghjkl34567"
-          secret= "4eryftgjh-pok%^K`$E%RTYG"
+          secret= "4eryftgjh-pok%^K```$E%RTYG"
       }
   }
 ```yaml
@@ -84,7 +84,15 @@ Accepted values:
 
 Required: True (None) False (All)
 Position: 2
-Default value: $lmsToolkitConfig = @{}
+Default value: $lmsToolkitConfig = @{
+      installationDirectory= "C:\\Ed-Fi\\"
+      webRootFolder= "c:\\inetpub\\Ed-Fi"
+      pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
+      sampleData= @{
+          key= "dfghjkl34567"
+          secret= "4eryftgjh-pok%^K```$E%RTYG"
+      }
+  }
 Accept pipeline input: False
 Accept wildcard characters: False
 DontShow: False
@@ -121,7 +129,25 @@ Accepted values:
 
 Required: True (None) False (All)
 Position: 3
-Default value: $databasesConfig = @{}
+Default value: $databasesConfig = @{
+      installDatabases= $true,
+      applicationCredentials= @{
+          databaseUser= ""
+          databasePassword= ""
+          useIntegratedSecurity= $true
+      }
+      installCredentials= @{
+          databaseUser= ""
+          databasePassword= ""
+          useIntegratedSecurity= $true
+      }
+      engine= "SQLServer"
+      databaseServer= "localhost"
+      databasePort= ""
+      adminDatabaseName= "EdFi_Admin"
+      odsDatabaseName= "EdFi_Ods"
+      securityDatabaseName= "EdFi_Security"
+  }
 Accept pipeline input: False
 Accept wildcard characters: False
 DontShow: False
@@ -139,7 +165,7 @@ Accepted values:
 
 Required: True (None) False (All)
 Position: 4
-Default value: 
+Default value: https://$($env:computername)/WebAPI
 Accept pipeline input: False
 Accept wildcard characters: False
 DontShow: False

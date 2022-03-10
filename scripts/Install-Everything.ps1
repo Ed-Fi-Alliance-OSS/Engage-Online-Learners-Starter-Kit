@@ -32,11 +32,13 @@
 
     .PARAMETER InstallPath
     Root directory for the application installation
+    
+    .PARAMETER webRootFolder
+    Root directory for web applications.
 
     .PARAMETER WebRoot
-    Root directory for web application installs.
+    Root Site for web application.
 
-    [string]
     .PARAMETER downloadPath
     Path for storing downloaded packages
 
@@ -45,226 +47,322 @@
 
     .PARAMETER databasesConfig
     Hashtable containing information about the databases and its server.
-    $databasesConfig = @{
-        installDatabases= $true,
-        applicationCredentials= @{
-            databaseUser= ""
-            databasePassword= ""
-            useIntegratedSecurity= $true
+    $databasesConfig= @{
+        installDatabases        = $true
+        applicationCredentials  = @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
         }
         installCredentials= @{
-            databaseUser= ""
-            databasePassword= ""
-            useIntegratedSecurity= $true
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
         }
-        engine= "SQLServer"
-        databaseServer= "localhost"
-        databasePort= ""
-        adminDatabaseName= "EdFi_Admin"
-        odsDatabaseName= "EdFi_Ods"
-        securityDatabaseName= "EdFi_Security"
-        useTemplates= $false,
-        noDuration= $false,
-        dropDatabases= $true,
-        apiMode= "sharedinstance"
-        odsTokens= [],
-        odsDatabaseTemplateName= "populated"
-        useIntegratedSecurity= $true,
-        minimalTemplateSuffix="Ods_Minimal_Template"
-        populatedTemplateSuffix="Ods"
-        populatedTemplateScript= "GrandBend"
-        addAdminUser= $false,
-        dbAdminUser= "edfi"
-        dbAdminUserPassword= "edfi"
-        packageDetails= @{
-            packageName= "EdFi.Suite3.RestApi.Databases"
-            version= "5.3"
+        engine                  = "SQLServer"
+        databaseServer          = "localhost"
+        databasePort            = ""
+        adminDatabaseName       = "EdFi_Admin"
+        odsDatabaseName         = "EdFi_Ods"
+        securityDatabaseName    = "EdFi_Security"
+        useTemplates            = $false
+        noDuration              = $false
+        dropDatabases           = $true
+        apiMode                 = "sharedinstance"
+        odsDatabaseTemplateName = "populated"
+        useIntegratedSecurity   = $true
+        minimalTemplateSuffix   = "EdFiMinimalTemplate"
+        populatedTemplateSuffix = "Ods"
+        populatedTemplateScript = "GrandBend"
+        addAdminUser            = $false
+        dbAdminUser             = "edfi"
+        dbAdminUserPassword     = "edfi"
+        packageDetails          = @{
+            packageName = "EdFi.Suite3.RestApi.Databases"
+            version     = "5.3"
         }
     }
 
     .PARAMETER adminAppConfig
     Hashtable containing Admin App settings and the installation directory.
-    $adminAppConfig = @{
-      installAdminApp= $true,
-      installationDirectory= "C:\\inetpub\\wwwroot\\Ed-Fi\\AdminApp"
-      appStartUp= "OnPrem"
-      odsApi= @{
-          apiUrl= ""
+    $adminAppConfig= @{
+        installAdminApp         = $true
+        appStartUp              = "OnPrem"
+        odsApi  = @{
+            apiUrl  = ""
+        }
+        packageDetails          = @{
+          packageName   = "EdFi.Suite3.ODS.AdminApp.Web"
+          version       = "2.3"
+        }
+        packageInstallerDetails = @{
+            packageName = "EdFi.Suite3.Installer.AdminApp"
+            version     = "2.3"
+        }
       }
-      packageDetails= @{
-        packageName= "EdFi.Suite3.ODS.AdminApp.Web"
-        version= "2.3"
-      }
-      packageInstallerDetails= @{
-          packageName= "EdFi.Suite3.Installer.AdminApp"
-          version= "2.3"
-      }
-    }
+
     .PARAMETER webApiConfig
     Hashtable containing Web API settings and the installation directory.
-    $webApiConfig= @{
-      installWebApi= $true,
-      webApplicationName= "WebApi"
-      installationDirectory= "C:\\inetpub\\wwwroot\\Ed-Fi\\WebApi"
-      webApiAppSettings= @{
-          excludedExtensionSources= "Sample,Homograph"
-          extensions= "true"
-          profiles= "false"
-          openApiMetadata= "true"
-          aggregateDependencies= "true"
-          tokenInfo= "true"
-          composites= "true"
-          changeQueries= "true"
-          identityManagement= "false"
-          ownershipBasedAuthorization= "false"
-          uniqueIdValidation= "false"
-      }
-      packageDetails= @{
-          packageName= "EdFi.Suite3.Ods.WebApi"
-          version= "5.3"
-      }
-      packageInstallerDetails= @{
-          packageName= "EdFi.Suite3.Installer.WebApi"
-          version= "5.3"
-      }
+    $webApiConfig       = @{
+        installWebApi           = $true
+        webApplicationName      = "WebApi"
+        webApiAppSettings       = @{
+            excludedExtensionSources    = "Sample,Homograph"
+            extensions                  = "true"
+            profiles                    = "false"
+            openApiMetadata             = "true"
+            aggregateDependencies       = "true"
+            tokenInfo                   = "true"
+            composites                  = "true"
+            changeQueries               = "true"
+            identityManagement          = "false"
+            ownershipBasedAuthorization = "false"
+            uniqueIdValidation          = "false"
+        }
+        packageDetails          = @{
+            packageName = "EdFi.Suite3.Ods.WebApi"
+            version     = "5.3"
+        }
+        packageInstallerDetails= @{
+            packageName = "EdFi.Suite3.Installer.WebApi"
+            version     = "5.3"
+        }
     }
 
     .PARAMETER swaggerUIConfig
     Hashtable containing SwaggerUI settings and the installation directory.
-    $swaggerUIConfig= @{
-      installSwaggerUI= $true,
-      WebApplicationName= "SwaggerUI"
-      installationDirectory= "C:\\inetpub\\wwwroot\\Ed-Fi\\SwaggerUI"
-      swaggerAppSettings= @{
-          apiMetadataUrl= ""
-          apiVersionUrl= ""
-      }
-      packageDetails= @{
-          packageName= "EdFi.Suite3.Ods.SwaggerUI"
-          version= "5.3"
-      }
-      packageInstallerDetails= @{
-          packageName= "EdFi.Suite3.Installer.SwaggerUI"
-          version= "5.3"
-      }
+    $swaggerUIConfig        =@{
+        installSwaggerUI        = $true
+        WebApplicationName      = "SwaggerUI"
+        swaggerAppSettings      = @{
+            apiMetadataUrl  = ""
+            apiVersionUrl   = ""
+        }
+        packageDetails          = @{
+            packageName     = "EdFi.Suite3.Ods.SwaggerUI"
+            version         = "5.3"
+        }
+        packageInstallerDetails = @{
+            packageName     = "EdFi.Suite3.Installer.SwaggerUI"
+            version         = "5.3"
+        }
     }
 
     .PARAMETER amtConfig
     Hashtable containing AMT settings and installation directory.
-    $amtConfig= @{
-      installAMT= $true,
-      amtDownloadPath= "C:\\temp\\downloads"
-      amtInstallerPath= "C:\\temp\\tools"
-      options= "EWS RLS Indexes Engage"
-      install_selfContained= "true"
-      selfContainedOS= "win10.x64"
-      packageDetails= @{
-          packageName= "EdFi.AnalyticsMiddleTier"
-          packageURL= "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
-          version= "2.8.0"
-      }
+    $amtConfig  =@{
+        installAMT              = $true
+        amtDownloadPath         = "C:\\temp\\downloads"
+        amtInstallerPath        = "C:\\temp\\tools"
+        options                 = "EWS RLS Indexes Engage"
+        install_selfContained   = "true"
+        selfContainedOS         = "win10.x64"
+        packageDetails          = @{
+            packageName = "EdFi.AnalyticsMiddleTier"
+            packageURL  = "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
+            version     = "2.8.0"
+        }
     }
+
     .PARAMETER bulkLoadClientConfig
     Hashtable containing Bulk Load Client settings and installation directory.
-    $bulkLoadClientConfig= @{
-        installBulkLoadClient= $true,
-        installationDirectory= "C:\\Ed-Fi\\Bulk-Load-Client"
-        packageDetails= @{
-            packageName= "EdFi.Suite3.BulkLoadClient.Console"
-            version= "5.3"
+    $bulkLoadClientConfig   = @{
+        installBulkLoadClient   = $true
+        installationDirectory   = "C:\\Ed-Fi\\Bulk-Load-Client"
+        packageDetails  = @{
+            packageName     = "EdFi.Suite3.BulkLoadClient.Console"
+            version         = "5.3"
         }
-        packageODSSchema52Details={
-            packageURL= "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/"
-            version= "5.2"
+        packageODSSchema52Details = @{
+            packageURL  = "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/"
+            version     = "5.2"
         }
     }
 
     .PARAMETER lmsToolkitConfig
     Hashtable containing LMS Toolkit settings and installation directory.
-    $lmsToolkitConfig= @{
-        installLMSToolkit= $true,
-        installationDirectory= "C:\\Ed-Fi\\"
-        webRootFolder= "c:\\inetpub\\Ed-Fi"
-        pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
-        packageDetails= @{
-            packageURL= "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
-            version= "main"
+    $lmsToolkitConfig   = @{
+        installLMSToolkit       = $true
+        installationDirectory   = "C:\\Ed-Fi\\"
+        webRootFolder           = "c:\\inetpub\\Ed-Fi"
+        pathToWorkingDir        = "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
+        packageDetails  = @{
+            packageURL      = "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
+            version         = "main"
         }     
-        sampleData= @{
-            key= "dfghjkl34567"
-            secret= "4eryftgjh-pok%^K`$E%RTYG"
+        sampleData      = @{
+            key             = "dfghjkl34567"
+            secret          = "4eryftgjh-pok%^K```$E%RTYG"
         }
     }
 #>
 param (
-    [string]
-    $configPath = "$PSScriptRoot\configuration.json",
     # Root directory for the application installation.
     [string]
-    $InstallPath = "c:/Ed-Fi",
-    # Root directory for web application installs.
+    $InstallPath    = "c:/Ed-Fi",
+    # Root Site for web application.
     [string]
     $WebRoot        = "Ed-Fi",   
     # Path for storing downloaded packages
     [string]
-    $downloadPath   ="C:\\temp",
+    $downloadPath   = "C:\\temp",
     # NuGet Feed for Ed-Fi packages
     [string]
     $EdFiNuGetFeed  = "https://pkgs.dev.azure.com/ed-fi-alliance/Ed-Fi-Alliance-OSS/_packaging/EdFi%40Release/nuget/v3/index.json",
     # Hashtable containing information about the databases and its server.
     [hashtable]
-    $databasesConfig,
+    $databasesConfig= @{
+        installDatabases        = $true
+        applicationCredentials  = @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        }
+        installCredentials= @{
+            databaseUser            = ""
+            databasePassword        = ""
+            useIntegratedSecurity   = $true
+        }
+        engine                  = "SQLServer"
+        databaseServer          = "localhost"
+        databasePort            = ""
+        adminDatabaseName       = "EdFi_Admin"
+        odsDatabaseName         = "EdFi_Ods"
+        securityDatabaseName    = "EdFi_Security"
+        useTemplates            = $false
+        noDuration              = $false
+        dropDatabases           = $true
+        apiMode                 = "sharedinstance"
+        odsDatabaseTemplateName = "populated"
+        minimalTemplateSuffix   = "EdFiMinimalTemplate"
+        populatedTemplateSuffix = "Ods"
+        populatedTemplateScript = "GrandBend"
+        addAdminUser            = $false
+        dbAdminUser             = "edfi"
+        dbAdminUserPassword     = "edfi"
+        packageDetails          = @{
+            packageName = "EdFi.Suite3.RestApi.Databases"
+            version     = "5.3"
+        }
+    },
     # Hashtable containing Admin App settings and the installation directory.
     [hashtable]
-    $adminAppConfig,
+    $adminAppConfig= @{
+        installAdminApp         = $true
+        appStartUp              = "OnPrem"
+        odsApi  = @{
+            apiUrl  = ""
+        }
+        packageDetails          = @{
+          packageName   = "EdFi.Suite3.ODS.AdminApp.Web"
+          version       = "2.3"
+        }
+        packageInstallerDetails = @{
+            packageName = "EdFi.Suite3.Installer.AdminApp"
+            version     = "2.3"
+        }
+      },
     # Hashtable containing Web API settings and the installation directory.
     [hashtable]
-    $webApiConfig,
+    $webApiConfig       =@{
+        installWebApi           = $true
+        webApplicationName      = "WebApi"
+        webApiAppSettings       = @{
+            excludedExtensionSources    = "Sample,Homograph"
+            extensions                  = "true"
+            profiles                    = "false"
+            openApiMetadata             = "true"
+            aggregateDependencies       = "true"
+            tokenInfo                   = "true"
+            composites                  = "true"
+            changeQueries               = "true"
+            identityManagement          = "false"
+            ownershipBasedAuthorization = "false"
+            uniqueIdValidation          = "false"
+        }
+        packageDetails          = @{
+            packageName = "EdFi.Suite3.Ods.WebApi"
+            version     = "5.3"
+        }
+        packageInstallerDetails= @{
+            packageName = "EdFi.Suite3.Installer.WebApi"
+            version     = "5.3"
+        }
+      },
     # Hashtable containing SwaggerUI settings and the installation directory.
     [hashtable]
-    $swaggerUIConfig,
+    $swaggerUIConfig        =@{
+        installSwaggerUI        = $true
+        WebApplicationName      = "SwaggerUI"
+        swaggerAppSettings      = @{
+            apiMetadataUrl  = ""
+            apiVersionUrl   = ""
+        }
+        packageDetails          = @{
+            packageName     = "EdFi.Suite3.Ods.SwaggerUI"
+            version         = "5.3"
+        }
+        packageInstallerDetails = @{
+            packageName     = "EdFi.Suite3.Installer.SwaggerUI"
+            version         = "5.3"
+        }
+      },
     # Hashtable containing AMT settings and installation directory.
     [hashtable]
-    $amtConfig,
+    $amtConfig  =@{
+        installAMT              = $true
+        amtDownloadPath         = "C:\\temp\\downloads"
+        amtInstallerPath        = "C:\\temp\\tools"
+        options                 = "EWS RLS Indexes Engage"
+        install_selfContained   = "true"
+        selfContainedOS         = "win10.x64"
+        packageDetails          = @{
+            packageName = "EdFi.AnalyticsMiddleTier"
+            packageURL  = "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
+            version     = "2.8.0"
+        }
+      },
     # Hashtable containing Bulk Load Client settings and installation directory.
     [hashtable]
-    $bulkLoadClientConfig,
+    $bulkLoadClientConfig   = @{
+        installBulkLoadClient   = $true
+        installationDirectory   = "C:\\Ed-Fi\\Bulk-Load-Client"
+        packageDetails  = @{
+            packageName     = "EdFi.Suite3.BulkLoadClient.Console"
+            version         = "5.3"
+        }
+        packageODSSchema52Details = @{
+            packageURL  = "https://raw.githubusercontent.com/Ed-Fi-Alliance-OSS/Ed-Fi-ODS/"
+            version     = "5.2"
+        }
+    },
     # Hashtable containing LMS Toolkit settings and installation directory.
     [hashtable]
-    $lmsToolkitConfig
+    $lmsToolkitConfig   = @{
+        installLMSToolkit       = $true
+        installationDirectory   = "C:\\Ed-Fi\\"
+        webRootFolder           = "c:\\inetpub\\Ed-Fi"
+        pathToWorkingDir        = "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
+        packageDetails  = @{
+            packageURL      = "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
+            version         = "main"
+        }     
+        sampleData      = @{
+            key             = "dfghjkl34567"
+            secret          = "4eryftgjh-pok%^K```$E%RTYG"
+        }
+    }
 )
 $global:ErrorActionPreference = "Stop"
 $global:ProgressPreference = "SilentlyContinue"
 
 Import-Module -Name "$PSScriptRoot\modules\Configure-Windows.psm1" -Force
-Import-Module -Force "$PSScriptRoot\confighelper.psm1"
 # Read the configuration file.
-$configuration = Format-ConfigurationFileToHashTable $configPath
 $toolsPath = "$($downloadPath)\tools"
-if(-not $databasesConfig){
-    $databasesConfig= $configuration.databasesConfig
-}
-if(-not $adminAppConfig){
-    $adminAppConfig= $configuration.adminAppConfig
-}
-if(-not $webApiConfig){
-    $webApiConfig= $configuration.webApiConfig
-}
-if(-not $swaggerUIConfig){
-    $swaggerUIConfig= $configuration.swaggerUIConfig
-}
-if(-not $amtConfig){
-    $amtConfig= $configuration.amtConfig
-}
-if(-not $bulkLoadClientConfig){
-    $bulkLoadClientConfig= $configuration.bulkLoadClientConfig
-}
-if(-not $lmsToolkitConfig){
-    $lmsToolkitConfig= $configuration.lmsToolkitConfig
-}
+
 Set-TLS12Support
 Set-ExecutionPolicy bypass -Scope CurrentUser -Force;
-
+# Install Third Party applications
 & "$PSScriptRoot/Install-ThirdPartyApplications.ps1" -ToolsPath $toolsPath
 
 Write-Host "Creating Ed-Fi Suite parameter..."
@@ -281,6 +379,7 @@ $edfiSuiteParam = @{
     bulkLoadClientConfig=$bulkLoadClientConfig
     lmsToolkitConfig    =$lmsToolkitConfig
 }
+
 Write-Host "Running Ed-Fi Install-EdFiTechnologySuite.ps1"
 & "$PSScriptRoot/Install-EdFiTechnologySuite.ps1" @edfiSuiteParam
 
@@ -289,16 +388,17 @@ Write-Host "Running Ed-Fi Install-EdFiTechnologySuite.ps1"
 # installed .NET Core Hosting Bundle
 Stop-Service -name was -Force -Confirm:$False
 Start-Service -name w3svc
+
 Write-Host "Creating Ed-Fi Starter Kit parameter..."
 $starterKitParam= @{
-    lmsToolkitConfig            = $configuration.lmsToolkitConfig
-    databasesConfig             = $configuration.databasesConfig
-    ApiUrl                      = "https://$($env:computername)/$($configuration.webApiConfig.webApplicationName)"
-    ToolsPath                   = "$($configuration.downloadDirectory)\tools"
-    ConsoleBulkLoadDirectory    = "$($configuration.bulkLoadClientConfig.installationDirectory)"
-    LMSToolkitDirectory         = Join-Path "$($configuration.lmsToolkitConfig.installationDirectory)" "LMS-Toolkit-$($configuration.lmsToolkitConfig.packageDetails.version)"
-    WebRoot                     = $configuration.lmsToolkitConfig.webRootFolder
-    OdsPlatformVersion          = $configuration.odsPlatformVersion
+    lmsToolkitConfig            = $lmsToolkitConfig
+    databasesConfig             = $databasesConfig
+    ApiUrl                      = "https://$($env:computername)/$($webApiConfig.webApplicationName)"
+    ToolsPath                   = "$($downloadDirectory)\tools"
+    ConsoleBulkLoadDirectory    = "$($bulkLoadClientConfig.installationDirectory)"
+    LMSToolkitDirectory         = Join-Path "$($lmsToolkitConfig.installationDirectory)" "LMS-Toolkit-$($lmsToolkitConfig.packageDetails.version)"
+    webRootFolder               = $lmsToolkitConfig.webRootFolder
+    OdsPlatformVersion          = $odsPlatformVersion
 }
 Write-Host "Running Ed-Fi Install-StarterKit.ps1..."
 & "$PSScriptRoot/Install-StarterKit.ps1" @starterKitParam

@@ -21,7 +21,6 @@ Import-Module "$PSScriptRoot\nuget-helper.psm1"
 .PARAMETER adminAppConfig
     Hashtable containing Admin App settings and the installation directory
 	$adminAppConfig= @{
-        installationDirectory = "C:\\inetpub\\wwwroot\\Ed-Fi\\AdminApp"
         packageDetails  = @{
             packageName = "EdFi.Suite3.ODS.AdminApp.Web"
             version     = "2.3"
@@ -95,25 +94,25 @@ function Install-EdFiAdmin(){
     Write-Host "Ed-Fi Admin App process starting..." -ForegroundColor Magenta
 
     $paths = @{
-        toolsPath = $toolsPath
-        downloadPath = $downloadPath
-        edfiSource = $edfiSource
+        toolsPath       = $toolsPath
+        downloadPath    = $downloadPath
+        edfiSource      = $edfiSource
     }
     $packageDetails = @{
         packageName = "$($adminAppConfig.packageInstallerDetails.packageName)"
-        version = "$($adminAppConfig.packageInstallerDetails.version)"
+        version     = "$($adminAppConfig.packageInstallerDetails.version)"
     }
     $packagePath = nuget-helper\Install-EdFiPackage @packageDetails @paths
 
 	Write-Host "Start installation..." -ForegroundColor Cyan
        
     $adminAppParams = @{
-        adminAppConfig = $adminAppConfig
+        adminAppConfig  = $adminAppConfig
         databasesConfig = $databasesConfig
-        toolsPath = $toolsPath
-        downloadPath = $downloadPath
-        ApiUrl = $ApiUrl
-        edfiSource = $edfiSource
+        toolsPath       = $toolsPath
+        downloadPath    = $downloadPath
+        ApiUrl          = $ApiUrl
+        edfiSource      = $edfiSource
     }
     $parameters = New-AdminAppParameters @adminAppParams
 
@@ -134,39 +133,39 @@ function New-AdminAppParameters {
     )
 
     $dbConnectionInfo = @{
-        Server = $databasesConfig.databaseServer
-        Port = $databasesConfig.databasePort
-        UseIntegratedSecurity = $databasesConfig.applicationCredentials.useIntegratedSecurity
-        Username = $databasesConfig.applicationCredentials.databaseUser
-        Password = $databasesConfig.applicationCredentials.databasePassword
-        Engine = $databasesConfig.engine
+        Server                  = $databasesConfig.databaseServer
+        Port                    = $databasesConfig.databasePort
+        UseIntegratedSecurity   = $databasesConfig.applicationCredentials.useIntegratedSecurity
+        Username                = $databasesConfig.applicationCredentials.databaseUser
+        Password                = $databasesConfig.applicationCredentials.databasePassword
+        Engine                  = $databasesConfig.engine
     }
 
     $adminAppFeatures = @{
         ApiMode = $databasesConfig.apiMode
     }
     $nugetPackageVersionParam=@{
-        PackageName="$($adminAppConfig.packageDetails.packageName)"
-        PackageVersion="$($adminAppConfig.packageDetails.version)"
-        ToolsPath="$toolsPath"
-        edfiSource="$($edfiSource)"
+        PackageName     ="$($adminAppConfig.packageDetails.packageName)"
+        PackageVersion  ="$($adminAppConfig.packageDetails.version)"
+        ToolsPath       ="$toolsPath"
+        edfiSource      ="$($edfiSource)"
     }
     $adminAppNugetVersion = Get-NuGetPackageVersion @nugetPackageVersionParam
     return @{
-        ToolsPath = $toolsPath
-        DownloadPath = $downloadPath
-        PackageName = "$($adminAppConfig.packageDetails.packageName)"
-        PackageSource="$($edfiSource)"
-        PackageVersion = "$($adminAppNugetVersion)"
-        OdsApiUrl = $ApiUrl
-        InstallCredentialsUser = $databasesConfig.installCredentials.databaseUser
+        ToolsPath               = $toolsPath
+        DownloadPath            = $downloadPath
+        PackageName             = "$($adminAppConfig.packageDetails.packageName)"
+        PackageSource           = "$($edfiSource)"
+        PackageVersion          = "$($adminAppNugetVersion)"
+        OdsApiUrl               = $ApiUrl
+        InstallCredentialsUser  = $databasesConfig.installCredentials.databaseUser
         InstallCredentialsPassword = $databasesConfig.installCredentials.databasePassword
         InstallCredentialsUseIntegratedSecurity = $databasesConfig.installCredentials.useIntegratedSecurity
-        AdminDatabaseName = $databasesConfig.adminDatabaseName
-        OdsDatabaseName = $databasesConfig.odsDatabaseName
-        SecurityDatabaseName = $databasesConfig.securityDatabaseName
-        AdminAppFeatures = $adminAppFeatures
-        DbConnectionInfo = $dbConnectionInfo        
+        AdminDatabaseName       = $databasesConfig.adminDatabaseName
+        OdsDatabaseName         = $databasesConfig.odsDatabaseName
+        SecurityDatabaseName    = $databasesConfig.securityDatabaseName
+        AdminAppFeatures        = $adminAppFeatures
+        DbConnectionInfo        = $dbConnectionInfo        
     }
 }
 

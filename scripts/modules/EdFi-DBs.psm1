@@ -88,12 +88,12 @@ function Install-EdFiDbs() {
         $engine = "PostgreSQL"
     }
 
-    $databasePort = $databasesConfig.databasePort
-    $databaseUser = $databasesConfig.installCredentials.databaseUser
-    $databasePassword = $databasesConfig.installCredentials.databasePassword
+    $databasePort       = $databasesConfig.databasePort
+    $databaseUser       = $databasesConfig.installCredentials.databaseUser
+    $databasePassword   = $databasesConfig.installCredentials.databasePassword
     $useIntegratedSecurity = $databasesConfig.installCredentials.useIntegratedSecurity
-    $dropDatabases = $databasesConfig.dropDatabases
-    $noDuration = $databasesConfig.noDuration
+    $dropDatabases      = $databasesConfig.dropDatabases
+    $noDuration         = $databasesConfig.noDuration
 
     $packageDetails = @{
         packageName  = "$($databasesConfig.packageDetails.packageName)"
@@ -167,17 +167,18 @@ function Install-EdFiDbs() {
         SetValue -object $json -key "ConnectionStrings.EdFi_Admin" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=$($databasesConfig.adminDatabaseName);Application Name=EdFi.Ods.WebApi"
         SetValue -object $json -key "ConnectionStrings.EdFi_Master" -value "server=$($databasesConfig.databaseServer);user id=$databaseUser;Password=$databasePassword;database=master;Application Name=EdFi.Ods.WebApi"
     }
-    if($databasesConfig.odsApi.apiMode){
+    if($databasesConfig.apiMode){
+        Write-host "API MODE $($databasesConfig.apiMode)"
         SetValue -object $json -key "ApiSettings.Mode" -value "$($databasesConfig.apiMode)"
     }
-    if($databasesConfig.odsApi.engine){
+    if($databasesConfig.engine){
         SetValue -object $json -key "ApiSettings.Engine" -value "$($databasesConfig.engine)"
     }
-    if($databasesConfig.odsApi.odsDatabaseTemplateName){
+    if($databasesConfig.odsDatabaseTemplateName){
         SetValue -object $json -key "ApiSettings.OdsDatabaseTemplateName" -value "$($databasesConfig.odsDatabaseTemplateName)"
     }
     SetValue -object $json -key "ApiSettings.DropDatabases" -value "$($dropDatabases)"
-    if($databasesConfig.odsApi.minimalTemplateSuffix){
+    if($databasesConfig.minimalTemplateSuffix){
         SetValue -object $json -key "ApiSettings.MinimalTemplateSuffix" -value "$($databasesConfig.minimalTemplateSuffix)"
     }
     if($databasesConfig.populatedTemplateSuffix){
@@ -191,7 +192,7 @@ function Install-EdFiDbs() {
     }
     
     $json | ConvertTo-Json | Out-File (Join-Path $EdFiRepositoryPath "configuration.json")
-
+    write-host "JSON CONFIG: $json"
     $env:toolsPath = (Join-Path (Get-RootPath) 'tools')
    # Although we have no plugins, the install does not react well when the
     # directory does not exist.

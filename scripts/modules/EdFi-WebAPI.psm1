@@ -118,32 +118,26 @@ function Install-EdFiAPI(){
 	{
 		Remove-Module $pathResolverModule
 	}
-    Write-Host "EdFi Package ($($webApiConfig.packageInstallerDetails.packageName))-$($webApiConfig.packageInstallerDetails.version)..." -ForegroundColor Cyan
-	$packagePath = Install-EdFiPackage @packageDetails
+    
+    $packagePath = Install-EdFiPackage @packageDetails
 
 	Write-Host "Starting installation..." -ForegroundColor Cyan
-
-    $parameters = New-WebApiParameters $webApiConfig $databasesConfig $toolsPath $downloadPath $edfiSource
-
+    $newApiParameter = @{
+        webApiConfig    = $webApiConfig
+        databasesConfig = $databasesConfig
+        toolsPath       = $toolsPath
+        downloadPath    = $downloadPath
+        webSiteName     = $webSiteName
+        edfiSource      = $edfiSource        
+    }
+    $parameters = New-WebApiParameters @newApiParameter  
+    
     $parameters.WebSiteName = $webSiteName
-
+    
     Import-Module -Force "$packagePath\Install-EdFiOdsWebApi.psm1"
 
     Install-EdFiOdsWebApi @parameters
-    # IIS-Components.psm1 must be imported after the IIS-WebServerManagementTools
-    # windows feature has been enabled. This feature is enabled during Install-WebApi
-    # by the AppCommon library.
-    try{        
-        Import-Module -Force "$packagePath\AppCommon\IIS\IIS-Components.psm1"
-        $portNumber = IIS-Components\Get-PortNumber $WebRoot
-
-        $expectedWebApiBaseUri = "https://$($env:computername):$($portNumber)/$($webApiConfig.webApplicationName)"
-        Write-Host "Setting API URL..."
-        Set-ApiUrl $expectedWebApiBaseUri
-        Write-Host "Setting API URL Continue..."
-    }catch{
-        Write-Host "Skipped $webApiAppCommon"
-    }
+   
     return $packagePath
 }
 
@@ -153,49 +147,47 @@ function New-WebApiParameters {
         [Hashtable] $databasesConfig,
         [String] $toolsPath,
         [String] $downloadPath,
-        [Parameter(Mandatory=$True)]
-        [string]
-        $edfiSource
+        [string] $webSiteName,
+        [string] $edfiSource
     )
 
     $dbConnectionInfo = @{
-        Server = $databasesConfig.databaseServer
-        Port = $databasesConfig.databasePort
-        UseIntegratedSecurity = $databasesConfig.applicationCredentials.useIntegratedSecurity
-        Username = $databasesConfig.applicationCredentials.databaseUser
-        Password = $databasesConfig.applicationCredentials.databasePassword
-        Engine = $databasesConfig.engine
+        Server      = "$($databasesConfig.databaseServer)"
+        Port        = "$($databasesConfig.databasePort)"
+        UseIntegratedSecurity = $databasesConfig.installCredentials.useIntegratedSecurity
+        Username    = "$($databasesConfig.installCredentials.databaseUser)"
+        Password    = "$($databasesConfig.installCredentials.databasePassword)"
+        Engine      = "$($databasesConfig.engine)"
     }
 
     $webApiFeatures = @{
         ExcludedExtensionSources = $webApiConfig.webApiAppSettings.excludedExtensionSources
         FeatureIsEnabled=@{
-            profiles = $webApiConfig.webApiAppSettings.profiles
-            extensions = $webApiConfig.webApiAppSettings.extensions
+            profiles    = $webApiConfig.webApiAppSettings.profiles
+            extensions  = $webApiConfig.webApiAppSettings.extensions
         }
     }
     $nugetPackageVersionParam=@{
-        PackageName="$($webApiConfig.packageDetails.packageName)"
-        PackageVersion="$($webApiConfig.packageDetails.version)"
-        ToolsPath="$toolsPath"
-        edfiSource="$($edfiSource)"
+        PackageName     = "$($webApiConfig.packageDetails.packageName)"
+        PackageVersion  = "$($webApiConfig.packageDetails.version)"
+        ToolsPath       = "$toolsPath"
+        edfiSource      = "$($edfiSource)"
     }
     $webApiLatestVersion = Get-NuGetPackageVersion @nugetPackageVersionParam
 
     return @{
-        ToolsPath = $toolsPath
-        DownloadPath = $downloadPath
-        PackageName = "$($webApiConfig.packageDetails.packageName)"
-        PackageVersion = "$webApiLatestVersion"
-        PackageSource = "$($edfiSource)"
-        WebApplicationPath = $webApiConfig.installationDirectory
-        WebApplicationName = $webApiConfig.webApplicationName
-        InstallType = $databasesConfig.apiMode
-        AdminDatabaseName = $databasesConfig.adminDatabaseName
-        OdsDatabaseName = $databasesConfig.odsDatabaseName
-        SecurityDatabaseName = $databasesConfig.securityDatabaseName
-        DbConnectionInfo = $dbConnectionInfo
-        WebApiFeatures = $webApiFeatures
+        ToolsPath               = $toolsPath
+        DownloadPath            = $downloadPath
+        PackageName             = "$($webApiConfig.packageDetails.packageName)"
+        PackageVersion          = "$webApiLatestVersion"
+        PackageSource           = "$($edfiSource)"
+        WebApplicationName      = "$($webApiConfig.webApplicationName)"
+        InstallType             = "$($databasesConfig.apiMode)"
+        AdminDatabaseName       = "$($databasesConfig.adminDatabaseName)"
+        OdsDatabaseName         = "$($databasesConfig.odsDatabaseName)"
+        SecurityDatabaseName    = "$($databasesConfig.securityDatabaseName)"
+        DbConnectionInfo        = $dbConnectionInfo
+        WebApiFeatures          = $webApiFeatures
     }
 }
 

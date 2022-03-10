@@ -29,7 +29,7 @@
       "odsTokens": [],
       "odsDatabaseTemplateName": "populated",
       "useIntegratedSecurity": true,
-      "minimalTemplateSuffix":"Ods_Minimal_Template",
+      "minimalTemplateSuffix":"EdFiMinimalTemplate",
       "populatedTemplateSuffix":"Ods",
       "populatedTemplateScript": "GrandBend",
       "addAdminUser": false,
@@ -42,7 +42,7 @@
   },
   "adminApp": {
       "installAdminApp": true,
-      "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\AdminApp",
+      "installationDirectory": "C:\\inetpub\\Ed-Fi\\AdminApp",
       "appStartUp": "OnPrem",
       "odsApi": {
           "apiUrl": ""
@@ -60,7 +60,6 @@
   "webapi": {
       "installWebApi": true,
       "webApplicationName": "WebApi",
-      "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\WebApi",
       "webApiAppSettings": {
           "excludedExtensionSources": "Sample,Homograph",
           "extensions": "true",
@@ -86,7 +85,6 @@
   "swaggerui": {
       "installSwaggerUI": true,
       "WebApplicationName": "SwaggerUI",
-      "installationDirectory": "C:\\inetpub\\wwwroot\\Ed-Fi\\SwaggerUI",
       "swaggerAppSettings": {
           "apiMetadataUrl": "",
           "apiVersionUrl": ""

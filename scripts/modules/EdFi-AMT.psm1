@@ -272,11 +272,11 @@ function New-amt-ConnectionString{
     $mssqlConnectionStringIntegrated="Server={0};Database={1};Integrated Security=SSPI;"
     $mssqlConnectionString="Server={0};Database={1};user id={2};Password={3};"
     if($databaseInfo.engine -ieq "SQLServer"){
-        if($databaseInfo.UseIntegratedSecurity){
+        if($databaseInfo.installCredentials.UseIntegratedSecurity){
             return $mssqlConnectionStringIntegrated -f $databaseInfo.databaseServer,$databaseInfo.odsDatabaseName
         }
         else{
-            return $mssqlConnectionString -f $databaseInfo.databaseServer,$databaseInfo.odsDatabaseName, $databaseInfo.applicationCredentials.databaseUser,$databaseInfo.applicationCredentials.databasePassword
+            return $mssqlConnectionString -f $databaseInfo.databaseServer,$databaseInfo.odsDatabaseName, $databaseInfo.installCredentials.databaseUser,$databaseInfo.installCredentials.databasePassword
         }
     }
     else{

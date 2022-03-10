@@ -6,8 +6,6 @@
 #Requires -Version 5
 #Requires -RunAsAdministrator
 
-# Load default values from json config file.
-
 <#
     .SYNOPSIS
     Installs Ed-Fi branding and other components required for a
@@ -23,24 +21,113 @@
     * Downloads the latest starter kit Power BI file on the desktop
 
     Assumes that you have already downloaded and installed the LMS Toolkit
+    
+    .PARAMETER lmsToolkitConfig
+    Hashtable containing LMS Toolkit settings and installation directory.
+    $lmsToolkitConfig= @{
+        installLMSToolkit= $true
+        installationDirectory= "C:\\Ed-Fi\\"
+        webRootFolder= "c:\\inetpub\\Ed-Fi"
+        pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
+        packageDetails= @{
+            packageURL= "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
+            version= "main"
+        }     
+        sampleData= @{
+            key= "dfghjkl34567"
+            secret= "4eryftgjh-pok%^K`$E%RTYG"
+        }
+    }
+    .PARAMETER databasesConfig
+    Hashtable containing information about the databases and its server.
+    $databasesConfig= @{
+        installDatabases= $true
+        applicationCredentials= @{
+            databaseUser= ""
+            databasePassword= ""
+            useIntegratedSecurity= $true
+        }
+        installCredentials= @{
+            databaseUser= ""
+            databasePassword= ""
+            useIntegratedSecurity= $true
+        }
+        engine= "SQLServer"
+        databaseServer= "localhost"
+        databasePort= ""
+        adminDatabaseName= "EdFi_Admin"
+        odsDatabaseName= "EdFi_Ods"
+        securityDatabaseName= "EdFi_Security"
+        useTemplates= $false
+        noDuration= $false
+        dropDatabases= $true
+        apiMode= "sharedinstance"
+    }
+    
+    .PARAMETER ApiUrl
+    Ed-Fi Web API URL
+    
+    .PARAMETER ToolsPath
+    Temporary directory for downloaded components.
+ 
+    .PARAMETER ConsoleBulkLoadDirectory
+    The directory in which the Console Bulk Loader was downloaded
+
+    .PARAMETER LMSToolkitDirectory
+    The directory in which the LMS Toolkit was downloaded and installed.
+   
+    .PARAMETER webRootFolder
+    Root directory for web applications.
+    
+    .PARAMETER OdsPlatformVersion
+    ODS Version
 #>
 param (
-    [string]
-    $configPath = "$PSScriptRoot\configuration.json",
-
     # Hashtable containing LMS Toolkit settings and installation directory.
-    [Parameter(Mandatory=$True)]
     [Hashtable]
-    $lmsToolkitConfig,
+    $lmsToolkitConfig=@{
+        installLMSToolkit= $true
+        installationDirectory= "C:\\Ed-Fi\\"
+        webRootFolder= "c:\\inetpub\\Ed-Fi"
+        pathToWorkingDir= "C:\\Ed-Fi\\QuickStarts\\LMS-Toolkit"
+        packageDetails= @{
+            packageURL= "https://github.com/Ed-Fi-Alliance-OSS/LMS-Toolkit"
+            version= "main"
+        }     
+        sampleData= @{
+            key= "dfghjkl34567"
+            secret= "4eryftgjh-pok%^K```$E%RTYG"
+        }
+    },
     
     # Hashtable containing information about the databases and its server.
-    [Parameter(Mandatory=$True)]
     [Hashtable]
-    $databasesConfig,
+    $databasesConfig= @{
+        installDatabases= $true
+        applicationCredentials= @{
+            databaseUser= ""
+            databasePassword= ""
+            useIntegratedSecurity= $true
+        }
+        installCredentials= @{
+            databaseUser= ""
+            databasePassword= ""
+            useIntegratedSecurity= $true
+        }
+        engine= "SQLServer"
+        databaseServer= "localhost"
+        databasePort= ""
+        adminDatabaseName= "EdFi_Admin"
+        odsDatabaseName= "EdFi_Ods"
+        securityDatabaseName= "EdFi_Security"
+        useTemplates= $false
+        noDuration= $false
+        dropDatabases= $true
+        apiMode= "sharedinstance"
+    },
     
-    [Parameter(Mandatory=$True)]
     [string]
-    $ApiUrl,
+    $ApiUrl="https://$($env:computername)/WebApi",
     
     # Temporary directory for downloaded components.
     [string]
@@ -56,7 +143,7 @@ param (
 
     # Root directory for web applications.
     [string]
-    $WebRoot = "c:/inetpub/Ed-Fi",
+    $webRootFolder = "c:/inetpub/Ed-Fi",
     
     [string]
     $OdsPlatformVersion = "5.3"    
@@ -67,19 +154,10 @@ $ErrorActionPreference = "Stop"
 Import-Module -Name "$PSScriptRoot/modules/Tool-Helpers.psm1" -Force
 Import-Module -Name "$PSScriptRoot/modules/Install-LMSToolkit.psm1" -Force
 Import-Module -Name "$PSScriptRoot/modules/Install-AdditionalSampleData.psm1" -Force
-Import-Module -Force "$PSScriptRoot\confighelper.psm1"
 
-$configuration = Format-ConfigurationFileToHashTable $configPath
-
-if(-not $databasesConfig){
-    $databasesConfig= $configuration.databasesConfig
-}
-if(-not $lmsToolkitConfig){
-    $lmsToolkitConfig= $configuration.lmsToolkitConfig
-}
 function Install-LandingPage {
     Write-Host "Installing the landing page"
-    Copy-Item -Path "$PSScriptRoot/../vm-docs/*" -Destination $WebRoot
+    Copy-Item -Path "$PSScriptRoot/../vm-docs/*" -Destination $webRootFolder
 
     $new_object = New-Object -ComObject WScript.Shell
     $destination = $new_object.SpecialFolders.Item("AllUsersDesktop")
@@ -88,7 +166,7 @@ function Install-LandingPage {
     $Shortcut = $new_object.CreateShortcut($source_path)
     try {
         # For unknown reasons, some systems do not recognize the following
-        $Shortcut.IconLocation = "$WebRoot/favicon.ico"
+        $Shortcut.IconLocation = "$webRootFolder/favicon.ico"
     }
     catch {
         # Ignore any error that occurs

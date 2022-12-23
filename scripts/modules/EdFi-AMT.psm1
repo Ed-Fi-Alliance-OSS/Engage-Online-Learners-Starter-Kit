@@ -28,7 +28,7 @@ function Install-AMT {
                 packageDetails = @{
                     packageName = "EdFi.AnalyticsMiddleTier",
                     packageURL  = "https=//github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier",
-                    version     = "2.8.0"
+                    version     = "3.0.1"
                 }
             }
     .PARAMETER databasesConfig
@@ -115,7 +115,7 @@ function Uninstall-AMT {
                 packageDetails = @{
                     packageName = "EdFi.AnalyticsMiddleTier",
                     packageURL  = "https=//github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier",
-                    version     = "2.8.0"
+                    version     = "3.0.1"
                 }
             }
     .PARAMETER databasesConfig
@@ -151,7 +151,7 @@ function Uninstall-AMT {
             packageDetails = @{
                 packageName = "EdFi.AnalyticsMiddleTier"
                 packageURL  = "https=//github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
-                version     = "2.8.0"
+                version     = "3.0.1"
             }
         }
         PS c:\> $databasesConfig = $databasesConfig= @{

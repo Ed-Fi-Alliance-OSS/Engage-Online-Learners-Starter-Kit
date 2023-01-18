@@ -173,7 +173,7 @@
         packageDetails          = @{
             packageName = "EdFi.AnalyticsMiddleTier"
             packageURL  = "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
-            version     = "3.0.1"
+            version     = "3.1.0"
         }
     }
 
@@ -354,7 +354,7 @@ param (
         packageDetails          = @{
             packageName = "EdFi.AnalyticsMiddleTier"
             packageURL  = "https://github.com/Ed-Fi-Alliance-OSS/Ed-Fi-Analytics-Middle-Tier"
-            version     = "3.0.1"
+            version     = "3.1.0"
         }
     },
     # Hashtable containing Bulk Load Client settings and installation directory.

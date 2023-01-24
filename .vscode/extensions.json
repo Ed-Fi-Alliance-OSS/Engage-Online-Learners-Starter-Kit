@@ -1,8 +1,8 @@
 {
   "recommendations": [
-      "psioniq.psi-header",
-      "streetsidesoftware.code-spell-checker",
-      "editorconfig.editorconfig",
-      "wholroyd.hcl"
+    "psioniq.psi-header",
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig",
+    "hashicorp.hcl"
   ]
 }

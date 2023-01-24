@@ -21,7 +21,7 @@ jobs:
     name: Analyze Code
     runs-on: ubuntu-latest
     env:
-        SRC_DIR: scripts
+      SRC_DIR: scripts
     permissions:
       actions: read
       contents: read
@@ -29,13 +29,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
 
       - name: Search for Code Files
         id: languages
         shell: pwsh
         run: |
-          Write-Output "::set-output name=count::$( (Get-ChildItem -Include *.cs, *.js, *.ts, *.py -Recurse).Count )"
+          Write-Output "name=count::$( (Get-ChildItem -Include *.cs, *.js, *.ts, *.py -Recurse).Count )" >> $env:GITHUB_OUTPUT
 
           $languages = @()
 
@@ -51,14 +51,19 @@ jobs:
           if ((Get-ChildItem -Include *.py -Recurse).Count -gt 0) {
             $languages += "python"
           }
-          Write-Output "::set-output name=languages::$( $languages -join "," )"
+          Write-Output "name=languages::$( $languages -join "," )" >> $env:GITHUB_OUTPUT
+
+      - name: Code files result
+        if: steps.languages.outputs.count == 0
+        run: |
+          echo '::notice:: No files were found for CodeQL analysis'
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@1fae5bf71b0ecdc7d0a2ef0d0c28409d99693966  # v2.9.2
+        uses: github/codeql-action/init@896079047b4bb059ba6f150a5d87d47dde99e6e5 # v2.11.6
         if: steps.languages.outputs.count > 0
         with:
           languages: ${{ steps.languages.outputs.languages }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@1fae5bf71b0ecdc7d0a2ef0d0c28409d99693966  # v2.9.2
+        uses: github/codeql-action/analyze@896079047b4bb059ba6f150a5d87d47dde99e6e5 # v2.11.6
         if: steps.languages.outputs.count > 0

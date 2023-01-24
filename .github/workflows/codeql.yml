@@ -53,6 +53,11 @@ jobs:
           }
           Write-Output "name=languages::$( $languages -join "," )" >> $env:GITHUB_OUTPUT
 
+      - name: Code files result
+        if: steps.languages.outputs.count == 0
+        run: |
+          echo '::notice:: No files found'
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@896079047b4bb059ba6f150a5d87d47dde99e6e5 # v2.11.6
         if: steps.languages.outputs.count > 0

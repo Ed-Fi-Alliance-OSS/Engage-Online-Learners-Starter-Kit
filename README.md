@@ -1,3 +1,6 @@
+| :exclamation: RETIRED PRODUCT :exclamation: |
+|-- |
+
 # Student-Engagement-Starter-Kit
 
 The Student Engagement Starter Kit connects data from a Learning Management
